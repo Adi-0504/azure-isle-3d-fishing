@@ -22,13 +22,20 @@
         <div style="display: flex; gap: 10px; align-items: center;">
           <!-- Radar Minimap -->
           <div id="radar-container" class="radar-box" title="Island Radar">
-            <div class="radar-center-camp">🏕️</div>
+            <div class="radar-center-camp">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ffb703" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m19 21-7-14-7 14"/>
+                <path d="M12 7v14"/>
+                <path d="M5 21h14"/>
+                <path d="m10 21 2-5 2 5"/>
+              </svg>
+            </div>
             <div id="radar-player-dot" class="radar-pointer">▲</div>
           </div>
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <div class="hud-pill">
               <span id="hud-time">08:00</span>
-              <span id="hud-env">春季 • 晴天 • 📍森林溪流</span>
+              <span id="hud-env">春季 • 晴天 • 森林溪流</span>
             </div>
             <div class="hud-pill">
               <span>體力</span>
@@ -41,8 +48,25 @@
       </div>
 
       <div class="hud-right">
-        <div id="hud-gear" class="hud-pill">🎣 竹製手作釣竿</div>
-        <div id="hud-coins" class="coin-badge">$0</div>
+        <div id="hud-gear" class="hud-pill">
+          <span class="hud-gear-icon-wrapper" style="display:inline-flex;align-items:center;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m2 22 1-1.5L18 5l3-3"/>
+              <path d="M18 5a2 2 0 1 0 2-2"/>
+              <path d="M14 9v6a3 3 0 0 1-3 3H7"/>
+              <circle cx="5" cy="18" r="2"/>
+            </svg>
+          </span>
+          <span id="hud-gear-text">竹製手作釣竿</span>
+        </div>
+        <div id="hud-coins" class="coin-badge">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 6v12"/>
+            <path d="M15 9.5a3 3 0 0 0-3-2.5c-2 0-3 1-3 2.5s1 2 3 2.5 3 1 3 2.5-1 2.5-3 2.5a3 3 0 0 1-3-2.5"/>
+          </svg>
+          <span id="hud-coins-val">$0</span>
+        </div>
       </div>
     </div>
 
@@ -64,16 +88,62 @@
       <!-- Right Touch Action Cluster -->
       <div id="action-buttons-cluster" class="interactive-ui">
         <div class="action-row">
-          <button id="btn-touch-menu" class="touch-btn touch-btn-menu" title="Menu">⚙️</button>
-          <button id="btn-touch-quest" class="touch-btn touch-btn-menu" title="Quests">📜</button>
-          <button id="btn-touch-catalog" class="touch-btn touch-btn-sub" title="Catalog">📖</button>
-          <button id="btn-touch-bag" class="touch-btn touch-btn-sub" title="Bag">🎒</button>
+          <button id="btn-touch-menu" class="touch-btn touch-btn-menu" title="Menu">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+          <button id="btn-touch-quest" class="touch-btn touch-btn-menu" title="Quests">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+          </button>
+          <button id="btn-touch-catalog" class="touch-btn touch-btn-sub" title="Catalog">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+              <path d="M7 6h9"/>
+              <path d="M7 10h9"/>
+              <path d="M7 14h5"/>
+            </svg>
+          </button>
+          <button id="btn-touch-bag" class="touch-btn touch-btn-sub" title="Bag">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9Z"/>
+              <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+              <path d="M8 13h8"/>
+              <path d="M8 17h8"/>
+            </svg>
+          </button>
         </div>
         <div class="action-row">
-          <button id="btn-touch-jump" class="touch-btn touch-btn-sub" title="Jump">🦘</button>
-          <button id="btn-touch-sprint" class="touch-btn touch-btn-sub" title="Sprint">⚡</button>
-          <button id="btn-touch-interact" class="touch-btn touch-btn-sub" title="Interact">💬</button>
-          <button id="btn-touch-action" class="touch-btn touch-btn-main" title="Fish">🎣</button>
+          <button id="btn-touch-jump" class="touch-btn touch-btn-sub" title="Jump">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 19V5"/>
+              <polyline points="5 12 12 5 19 12"/>
+            </svg>
+          </button>
+          <button id="btn-touch-sprint" class="touch-btn touch-btn-sub" title="Sprint">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </button>
+          <button id="btn-touch-interact" class="touch-btn touch-btn-sub" title="Interact">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <line x1="8" y1="10" x2="16" y2="10"/>
+            </svg>
+          </button>
+          <button id="btn-touch-action" class="touch-btn touch-btn-main" title="Fish">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m2 22 1-1.5L18 5l3-3"/>
+              <path d="M18 5a2 2 0 1 0 2-2"/>
+              <path d="M14 9v6a3 3 0 0 1-3 3H7"/>
+              <circle cx="5" cy="18" r="2"/>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -87,9 +157,29 @@
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <button id="btn-menu-continue" class="btn-action-wide" style="display: none;">繼續遊戲</button>
           <button id="btn-menu-new" class="btn-action-wide">開始新遊戲</button>
-          <button id="btn-menu-lang" class="btn-buy" style="padding: 12px;">🌐 語言切換 / Language</button>
-          <button id="btn-menu-settings" class="btn-buy" style="padding: 12px; background: #3d5a80;">⚙️ 遊戲設定</button>
-          <button id="btn-menu-credits" class="btn-buy" style="padding: 12px; background: #4a5568;">📜 製作名單與致謝</button>
+          <button id="btn-menu-lang" class="btn-buy" style="padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            語言切換 / Language
+          </button>
+          <button id="btn-menu-settings" class="btn-buy" style="padding: 12px; background: #3d5a80; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            遊戲設定
+          </button>
+          <button id="btn-menu-credits" class="btn-buy" style="padding: 12px; background: #4a5568; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            製作名單與致謝
+          </button>
         </div>
       </div>
     </div>
@@ -182,11 +272,20 @@
     <!-- MODAL: Catch Success Popup -->
     <div id="modal-catch" class="game-modal">
       <div class="modal-content catch-dialog interactive-ui">
-        <div class="catch-title">🎣 成功捕獲！</div>
+        <div class="catch-title" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ffb703" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+            <path d="M4 22h16"/>
+            <path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"/>
+            <path d="M6 4h12v6a6 6 0 0 1-12 0V4Z"/>
+          </svg>
+          成功捕獲！
+        </div>
         <div id="catch-3d-canvas"></div>
         <h2 id="catch-name" style="font-size: 22px; color: #fff;">三點鮭</h2>
         <div class="catch-details">
-          <span id="catch-stars" style="color: var(--accent);">★★☆☆☆</span>
+          <div id="catch-stars"></div>
           <span id="catch-size">45.2 cm</span>
           <span id="catch-price" style="color: var(--accent);">$65</span>
         </div>
@@ -202,7 +301,15 @@
     <div id="modal-backpack" class="game-modal">
       <div class="modal-content interactive-ui">
         <div class="modal-header">
-          <div class="modal-title">🎒 隨身背包</div>
+          <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9Z"/>
+              <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+              <path d="M8 13h8"/>
+              <path d="M8 17h8"/>
+            </svg>
+            隨身背包
+          </div>
           <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
         </div>
         <div id="bag-capacity-text" style="font-size: 14px; color: var(--text-muted);">容量: 0 / 12</div>
@@ -214,7 +321,15 @@
     <div id="modal-catalog" class="game-modal">
       <div class="modal-content interactive-ui" style="max-width: 750px;">
         <div class="modal-header">
-          <div class="modal-title">📖 自然生物觀察圖鑑</div>
+          <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+              <path d="M7 6h9"/>
+              <path d="M7 10h9"/>
+              <path d="M7 14h5"/>
+            </svg>
+            自然生物觀察圖鑑
+          </div>
           <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
         </div>
         <p style="font-size: 13px; color: var(--text-muted);">收錄島上溪流、高山湖、懸崖與海灘全部生物物種。</p>
@@ -226,7 +341,14 @@
     <div id="modal-shop" class="game-modal">
       <div class="modal-content interactive-ui" style="max-width: 750px;">
         <div class="modal-header">
-          <div class="modal-title">🏪 自動交易終端機</div>
+          <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l2-5h14l2 5"/>
+              <path d="M21 9v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9"/>
+              <path d="M9 22V12h6v10"/>
+            </svg>
+            自動交易終端機
+          </div>
           <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
         </div>
         <div id="shop-coins-text" style="font-size: 16px; font-weight: 700; color: var(--accent);">金幣: $0</div>
@@ -238,7 +360,14 @@
     <div id="modal-quests" class="game-modal">
       <div class="modal-content interactive-ui">
         <div class="modal-header">
-          <div class="modal-title">📜 島嶼生態任務公告</div>
+          <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            島嶼生態任務公告
+          </div>
           <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
         </div>
         <div id="quests-list" class="quests-list-container"></div>
@@ -249,7 +378,13 @@
     <div id="modal-settings" class="game-modal">
       <div class="modal-content interactive-ui" style="max-width: 480px;">
         <div class="modal-header">
-          <div class="modal-title">⚙️ 遊戲設定</div>
+          <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            遊戲設定
+          </div>
           <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
         </div>
         <div class="form-group">
@@ -267,10 +402,29 @@
           </label>
         </div>
         <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-          <button id="btn-save-progress" class="btn-action-wide">💾 立即手動儲存進度</button>
-          <button id="btn-export-save" class="btn-buy" style="padding: 10px; background: #2a9d8f;">📤 匯出存檔 (跨裝置轉移)</button>
-          <label class="btn-buy" style="padding: 10px; background: #3d5a80; text-align: center; cursor: pointer;">
-            📥 匯入存檔 (JSON)
+          <button id="btn-save-progress" class="btn-action-wide" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            立即手動儲存進度
+          </button>
+          <button id="btn-export-save" class="btn-buy" style="padding: 10px; background: #2a9d8f; display:flex;align-items:center;justify-content:center;gap:8px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            匯出存檔 (跨裝置轉移)
+          </button>
+          <label class="btn-buy" style="padding: 10px; background: #3d5a80; text-align: center; cursor: pointer; display:flex;align-items:center;justify-content:center;gap:8px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            匯入存檔 (JSON)
             <input id="input-import-save" type="file" accept=".json" style="display: none;" />
           </label>
         </div>
@@ -281,7 +435,14 @@
     <div id="modal-credits" class="game-modal">
       <div class="modal-content interactive-ui" style="max-width: 500px;">
         <div class="modal-header">
-          <div class="modal-title">📜 製作名單與致謝</div>
+          <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            製作名單與致謝
+          </div>
           <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
         </div>
         <div style="font-size: 13px; line-height: 1.6; color: var(--text-muted);">

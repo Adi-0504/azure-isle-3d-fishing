@@ -360,7 +360,43 @@ html, body {
 }
 
 .slot-icon {
-  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.slot-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.shop-card-icon {
+  display: flex;
+  align-items: center;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.shop-card-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.touch-btn svg {
+  pointer-events: none;
+}
+
+.star-rating-row {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.star-rating-row svg {
+  width: 16px;
+  height: 16px;
 }
 
 .slot-name {

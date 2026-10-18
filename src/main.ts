@@ -12,6 +12,7 @@ import { soundSynth } from './audio/SoundSynthesizer';
 import { ITEMS_DATABASE } from '../data/items/ItemsDatabase';
 import { QUESTS_DATABASE } from '../data/quests/QuestsDatabase';
 import { setLanguage, t } from '../data/localization/i18n';
+import { ICONS } from './ui/Icons';
 
 class GameEngine {
   private renderer!: THREE.WebGLRenderer;
@@ -99,7 +100,7 @@ class GameEngine {
       this.currentSave.season,
       this.currentSave.weather
     );
-    this.scene.add(this.weatherTime.sunLight, this.weatherTime.hemiLight);
+    this.scene.add(this.weatherTime.sunLight, this.weatherTime.hemiLight, this.weatherTime.skyGroup);
     if (this.weatherTime.rainParticles) {
       this.scene.add(this.weatherTime.rainParticles);
     }
@@ -220,7 +221,7 @@ class GameEngine {
         this.currentSave.coins += c.price * slot.quantity;
         this.currentSave.inventory.splice(slotIdx, 1);
         soundSynth.playCoinsChime();
-        this.uiManager.showToast(`售出物品！獲得金幣 +$${c.price * slot.quantity}`, '💰');
+        this.uiManager.showToast(`售出物品！獲得金幣 +$${c.price * slot.quantity}`, ICONS.coin);
         this.autoSave();
       }
     };
@@ -231,7 +232,7 @@ class GameEngine {
       if (!item || this.currentSave.coins < item.price) return;
 
       this.currentSave.coins -= item.price;
-      this.uiManager.showToast(`購買成功：${item.names[this.currentSave.language]}！`, item.icon);
+      this.uiManager.showToast(`購買成功：${item.names[this.currentSave.language]}！`, ICONS[item.icon] || ICONS.check);
 
       if (item.type === 'rod') {
         this.currentSave.equippedRodId = item.id;
@@ -546,6 +547,7 @@ class GameEngine {
       // Update Environmental Systems
       this.weatherTime.update(dt, this.scene, this.playerController.position);
       this.waterSystem.update(dt, timeSec);
+      this.terrain.update(dt, timeSec);
 
       if (this.gameState === 'MAIN_MENU') {
         // Dynamic Island Menu Camera orbit

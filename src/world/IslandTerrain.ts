@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { BiomeId } from '../../data/fish/CreatureDatabase';
+import { ToonGradients } from './ToonGradients';
 
 export class IslandTerrain {
   public group: THREE.Group;
@@ -8,6 +9,7 @@ export class IslandTerrain {
   public foliageMaterials: THREE.MeshToonMaterial[] = [];
   public interactableTerminals: { pos: THREE.Vector3; type: 'shop' | 'quest' }[] = [];
   public campProps: THREE.Group[] = [];
+  public grassTufts: THREE.Group[] = [];
 
   constructor() {
     this.group = new THREE.Group();
@@ -141,7 +143,8 @@ export class IslandTerrain {
     geo.computeVertexNormals();
 
     const mat = new THREE.MeshToonMaterial({
-      vertexColors: true
+      vertexColors: true,
+      gradientMap: ToonGradients.getThreeTone()
     });
 
     this.terrainMesh = new THREE.Mesh(geo, mat);
@@ -197,6 +200,7 @@ export class IslandTerrain {
     this.spawnFlowerPatches();
     this.spawnForestMushrooms();
     this.spawnSignposts();
+    this.spawnGrassTufts();
   }
 
   private spawnStylizedTree(x: number, y: number, z: number, isPine: boolean) {
@@ -204,7 +208,10 @@ export class IslandTerrain {
     treeGroup.position.set(x, y, z);
 
     // Trunk
-    const trunkMat = new THREE.MeshToonMaterial({ color: 0x6f4e37 });
+    const trunkMat = new THREE.MeshToonMaterial({
+      color: 0x6f4e37,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const trunkGeo = new THREE.CylinderGeometry(0.25, 0.4, 2.0, 7);
     const trunk = new THREE.Mesh(trunkGeo, trunkMat);
     trunk.position.y = 1.0;
@@ -213,7 +220,8 @@ export class IslandTerrain {
 
     // Foliage
     const foliageMat = new THREE.MeshToonMaterial({
-      color: isPine ? 0x2d6a4f : 0x52b788
+      color: isPine ? 0x2d6a4f : 0x52b788,
+      gradientMap: ToonGradients.getFiveTone()
     });
     this.foliageMaterials.push(foliageMat);
 
@@ -254,7 +262,10 @@ export class IslandTerrain {
 
   private spawnRock(x: number, y: number, z: number) {
     const rockGeo = new THREE.DodecahedronGeometry(0.8 + Math.random() * 0.8, 0);
-    const rockMat = new THREE.MeshToonMaterial({ color: 0x7f8c8d });
+    const rockMat = new THREE.MeshToonMaterial({
+      color: 0x7f8c8d,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const rock = new THREE.Mesh(rockGeo, rockMat);
     rock.position.set(x, y + 0.3, z);
     rock.rotation.set(Math.random(), Math.random(), Math.random());
@@ -267,7 +278,10 @@ export class IslandTerrain {
     const bridge = new THREE.Group();
     bridge.position.set(x, y + 0.2, z);
 
-    const woodMat = new THREE.MeshToonMaterial({ color: 0x8b5a2b });
+    const woodMat = new THREE.MeshToonMaterial({
+      color: 0x8b5a2b,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     // Planks
     for (let i = -3; i <= 3; i++) {
       const plank = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 2.2), woodMat);
@@ -294,8 +308,14 @@ export class IslandTerrain {
     const pier = new THREE.Group();
     pier.position.set(startX, startY, startZ);
 
-    const woodMat = new THREE.MeshToonMaterial({ color: 0x9c6644 });
-    const postMat = new THREE.MeshToonMaterial({ color: 0x7f4f24 });
+    const woodMat = new THREE.MeshToonMaterial({
+      color: 0x9c6644,
+      gradientMap: ToonGradients.getThreeTone()
+    });
+    const postMat = new THREE.MeshToonMaterial({
+      color: 0x7f4f24,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const ropeMat = new THREE.MeshStandardMaterial({ color: 0xddb892, roughness: 0.8 });
 
     const step = 0.5;
@@ -338,13 +358,21 @@ export class IslandTerrain {
     const beaconGroup = new THREE.Group();
     beaconGroup.position.set(x, y, z);
 
-    const stoneMat = new THREE.MeshToonMaterial({ color: 0x6c757d });
-    const roofMat = new THREE.MeshToonMaterial({ color: 0x1d3557 });
+    const stoneMat = new THREE.MeshToonMaterial({
+      color: 0x6c757d,
+      gradientMap: ToonGradients.getThreeTone()
+    });
+    const roofMat = new THREE.MeshToonMaterial({
+      color: 0x1d3557,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const glassMat = new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0.85 });
 
     // Raised Circular Stone Base
     const base = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.5, 0.8, 12), stoneMat);
     base.position.y = 0.4;
+    base.castShadow = true;
+    beaconGroup.add(base);
     base.castShadow = true;
     beaconGroup.add(base);
 
@@ -384,8 +412,14 @@ export class IslandTerrain {
       if (py < 0.6 || py > 7.0) continue;
 
       const patchColor = colors[p % colors.length];
-      const flowerMat = new THREE.MeshToonMaterial({ color: patchColor });
-      const stemMat = new THREE.MeshToonMaterial({ color: 0x52b788 });
+      const flowerMat = new THREE.MeshToonMaterial({
+        color: patchColor,
+        gradientMap: ToonGradients.getThreeTone()
+      });
+      const stemMat = new THREE.MeshToonMaterial({
+        color: 0x52b788,
+        gradientMap: ToonGradients.getThreeTone()
+      });
 
       // Cluster of 4-6 flowers per patch
       for (let f = 0; f < 5; f++) {
@@ -405,8 +439,14 @@ export class IslandTerrain {
   }
 
   private spawnForestMushrooms() {
-    const capMat = new THREE.MeshToonMaterial({ color: 0xd90429 });
-    const stemMat = new THREE.MeshToonMaterial({ color: 0xfdf0d5 });
+    const capMat = new THREE.MeshToonMaterial({
+      color: 0xd90429,
+      gradientMap: ToonGradients.getThreeTone()
+    });
+    const stemMat = new THREE.MeshToonMaterial({
+      color: 0xfdf0d5,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const spotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
     // Spawn mushrooms in Secret Grove (x < -25)
@@ -430,8 +470,14 @@ export class IslandTerrain {
   }
 
   private spawnSignposts() {
-    const woodMat = new THREE.MeshToonMaterial({ color: 0x8b5a2b });
-    const signMat = new THREE.MeshToonMaterial({ color: 0xd4a373 });
+    const woodMat = new THREE.MeshToonMaterial({
+      color: 0x8b5a2b,
+      gradientMap: ToonGradients.getThreeTone()
+    });
+    const signMat = new THREE.MeshToonMaterial({
+      color: 0xd4a373,
+      gradientMap: ToonGradients.getThreeTone()
+    });
 
     // Signpost at Crossroads (0, 0, 18)
     const signGroup = new THREE.Group();
@@ -455,6 +501,56 @@ export class IslandTerrain {
     this.group.add(signGroup);
   }
 
+  private spawnGrassTufts() {
+    const grassMat1 = new THREE.MeshToonMaterial({
+      color: 0x5bb056,
+      gradientMap: ToonGradients.getThreeTone(),
+      side: THREE.DoubleSide
+    });
+    const grassMat2 = new THREE.MeshToonMaterial({
+      color: 0x7ec850,
+      gradientMap: ToonGradients.getThreeTone(),
+      side: THREE.DoubleSide
+    });
+
+    // Single blade geometry: tapered triangle
+    const bladeGeo = new THREE.ConeGeometry(0.12, 0.65, 3);
+    bladeGeo.scale(0.15, 1, 1);
+    bladeGeo.translate(0, 0.32, 0);
+
+    for (let i = 0; i < 180; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 8 + Math.random() * 68;
+      const x = Math.cos(angle) * r;
+      const z = Math.sin(angle) * r;
+
+      const y = this.getTerrainHeight(x, z);
+      if (y < 0.6 || y > 7.5) continue; // meadow heights only
+      // Don't spawn inside lake or campfire
+      if (Math.hypot(x - 25, z - 5) < 15) continue;
+      if (Math.hypot(x, z - 5) < 4) continue;
+
+      const tuft = new THREE.Group();
+      tuft.position.set(x, y, z);
+      const mat = (i % 2 === 0) ? grassMat1 : grassMat2;
+
+      // 3-4 blades tilted outwards
+      const numBlades = 3 + Math.floor(Math.random() * 2);
+      for (let b = 0; b < numBlades; b++) {
+        const blade = new THREE.Mesh(bladeGeo, mat);
+        const bladeAngle = (b / numBlades) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+        blade.rotation.y = bladeAngle;
+        blade.rotation.z = 0.25 + Math.random() * 0.2;
+        const bladeScale = 0.7 + Math.random() * 0.5;
+        blade.scale.set(bladeScale, bladeScale, bladeScale);
+        tuft.add(blade);
+      }
+
+      this.group.add(tuft);
+      this.grassTufts.push(tuft);
+    }
+  }
+
   private buildCampSite() {
     // Initial campsite located at (0, y, 5)
     const campX = 0;
@@ -467,7 +563,10 @@ export class IslandTerrain {
     this.group.add(campGroup);
 
     // 1. Canvas Tent
-    const tentMat = new THREE.MeshToonMaterial({ color: 0xf4a261 });
+    const tentMat = new THREE.MeshToonMaterial({
+      color: 0xf4a261,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const tentGeo = new THREE.ConeGeometry(2.2, 2.0, 4);
     tentGeo.rotateY(Math.PI / 4);
     const tent = new THREE.Mesh(tentGeo, tentMat);
@@ -481,7 +580,10 @@ export class IslandTerrain {
     campGroup.add(firePit);
 
     // Ring of stones
-    const stoneMat = new THREE.MeshToonMaterial({ color: 0x6c757d });
+    const stoneMat = new THREE.MeshToonMaterial({
+      color: 0x6c757d,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     for (let i = 0; i < 8; i++) {
       const ang = (i / 8) * Math.PI * 2;
       const stone = new THREE.Mesh(new THREE.DodecahedronGeometry(0.2, 0), stoneMat);
@@ -489,7 +591,10 @@ export class IslandTerrain {
       firePit.add(stone);
     }
     // Logs
-    const logMat = new THREE.MeshToonMaterial({ color: 0x4a2e18 });
+    const logMat = new THREE.MeshToonMaterial({
+      color: 0x4a2e18,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     for (let i = 0; i < 3; i++) {
       const log = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.8, 6), logMat);
       log.rotation.z = Math.PI / 3;
@@ -503,7 +608,10 @@ export class IslandTerrain {
     firePit.add(fireLight);
 
     // 3. Wooden Camp Bench
-    const woodMat = new THREE.MeshToonMaterial({ color: 0xa0522d });
+    const woodMat = new THREE.MeshToonMaterial({
+      color: 0xa0522d,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const bench = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.35, 0.5), woodMat);
     bench.position.set(1.5, 0.25, 1.2);
     bench.castShadow = true;
@@ -520,7 +628,10 @@ export class IslandTerrain {
     terminalGroup.position.set(2.8, 0, -1.0);
     campGroup.add(terminalGroup);
 
-    const termBodyMat = new THREE.MeshToonMaterial({ color: 0x2a9d8f });
+    const termBodyMat = new THREE.MeshToonMaterial({
+      color: 0x2a9d8f,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const termScreenMat = new THREE.MeshBasicMaterial({ color: 0x52b788 });
     const termBody = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.6, 0.6), termBodyMat);
     termBody.position.y = 0.8;
@@ -540,7 +651,10 @@ export class IslandTerrain {
     boardGroup.position.set(-2.8, 0, 0.5);
     campGroup.add(boardGroup);
 
-    const boardMat = new THREE.MeshToonMaterial({ color: 0xd4a373 });
+    const boardMat = new THREE.MeshToonMaterial({
+      color: 0xd4a373,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const boardPost = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.5, 6), woodMat);
     boardPost.position.y = 0.75;
     const boardPanel = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.08), boardMat);
@@ -551,6 +665,14 @@ export class IslandTerrain {
       pos: new THREE.Vector3(campX - 2.8, campY, campZ + 0.5),
       type: 'quest'
     });
+  }
+
+  public update(_dt: number, timeSec: number) {
+    for (let i = 0; i < this.grassTufts.length; i++) {
+      const g = this.grassTufts[i];
+      g.rotation.z = Math.sin(timeSec * 2.2 + g.position.x * 0.3 + g.position.z * 0.2) * 0.1;
+      g.rotation.x = Math.cos(timeSec * 1.8 + g.position.z * 0.3) * 0.08;
+    }
   }
 
   public updateSeason(season: 'spring' | 'summer' | 'autumn' | 'winter') {

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { PlayerCustomization } from '../save/SaveManager';
+import { ToonGradients } from '../world/ToonGradients';
 
 export class PlayerModel {
   public group: THREE.Group;
@@ -35,12 +36,30 @@ export class PlayerModel {
   }
 
   private buildCharacter() {
-    this.skinMat = new THREE.MeshToonMaterial({ color: this.customization.skinTone });
-    this.hairMat = new THREE.MeshToonMaterial({ color: this.customization.hairColor });
-    this.vestMat = new THREE.MeshToonMaterial({ color: this.customization.outfitColor });
-    this.pantsMat = new THREE.MeshToonMaterial({ color: 0x3d5a80 });
-    const bootMat = new THREE.MeshToonMaterial({ color: 0x4a3b32 });
-    const beltMat = new THREE.MeshToonMaterial({ color: 0x5c4033 });
+    this.skinMat = new THREE.MeshToonMaterial({
+      color: this.customization.skinTone,
+      gradientMap: ToonGradients.getThreeTone()
+    });
+    this.hairMat = new THREE.MeshToonMaterial({
+      color: this.customization.hairColor,
+      gradientMap: ToonGradients.getFiveTone()
+    });
+    this.vestMat = new THREE.MeshToonMaterial({
+      color: this.customization.outfitColor,
+      gradientMap: ToonGradients.getFiveTone()
+    });
+    this.pantsMat = new THREE.MeshToonMaterial({
+      color: 0x3d5a80,
+      gradientMap: ToonGradients.getThreeTone()
+    });
+    const bootMat = new THREE.MeshToonMaterial({
+      color: 0x4a3b32,
+      gradientMap: ToonGradients.getThreeTone()
+    });
+    const beltMat = new THREE.MeshToonMaterial({
+      color: 0x5c4033,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const eyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const pupilMat = new THREE.MeshBasicMaterial({ color: 0x1d3557 });
 
@@ -57,7 +76,10 @@ export class PlayerModel {
 
     // Fishing Vest Pockets, Zipper & Collar
     const pocketGeo = new THREE.BoxGeometry(0.16, 0.16, 0.08);
-    const pocketMat = new THREE.MeshToonMaterial({ color: 0xe0a96d });
+    const pocketMat = new THREE.MeshToonMaterial({
+      color: 0xe0a96d,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const pocketL = new THREE.Mesh(pocketGeo, pocketMat);
     pocketL.position.set(-0.18, -0.05, 0.32);
     const pocketR = new THREE.Mesh(pocketGeo, pocketMat);
@@ -73,14 +95,20 @@ export class PlayerModel {
     this.torsoNode.add(zipper);
 
     // Adventure Backpack on Back
-    const packMat = new THREE.MeshToonMaterial({ color: 0x606c38 });
+    const packMat = new THREE.MeshToonMaterial({
+      color: 0x606c38,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const backpack = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.52, 0.24), packMat);
     backpack.position.set(0, 0.05, -0.28);
     backpack.castShadow = true;
     this.torsoNode.add(backpack);
 
     // Rolled Sleeping Mat on top of pack
-    const matMat = new THREE.MeshToonMaterial({ color: 0xd4a373 });
+    const matMat = new THREE.MeshToonMaterial({
+      color: 0xd4a373,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const sleepMat = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.56, 8), matMat);
     sleepMat.rotation.z = Math.PI / 2;
     sleepMat.position.set(0, 0.36, -0.28);
@@ -202,7 +230,10 @@ export class PlayerModel {
 
     // Rod Blank
     const blankGeo = new THREE.CylinderGeometry(0.02, 0.045, 2.4, 6);
-    const rodMat = new THREE.MeshToonMaterial({ color: 0xcd853f });
+    const rodMat = new THREE.MeshToonMaterial({
+      color: 0xcd853f,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const blankMesh = new THREE.Mesh(blankGeo, rodMat);
     blankMesh.position.set(0, 1.1, 0.1);
     this.rodNode.add(blankMesh);
@@ -237,11 +268,17 @@ export class PlayerModel {
     const bobberGroup = new THREE.Group();
     const bobberTop = new THREE.Mesh(
       new THREE.SphereGeometry(0.12, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2),
-      new THREE.MeshToonMaterial({ color: 0xff3333 })
+      new THREE.MeshToonMaterial({
+        color: 0xff3333,
+        gradientMap: ToonGradients.getThreeTone()
+      })
     );
     const bobberBot = new THREE.Mesh(
       new THREE.SphereGeometry(0.12, 8, 6, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
-      new THREE.MeshToonMaterial({ color: 0xffffff })
+      new THREE.MeshToonMaterial({
+        color: 0xffffff,
+        gradientMap: ToonGradients.getThreeTone()
+      })
     );
     const antenna = new THREE.Mesh(
       new THREE.CylinderGeometry(0.015, 0.015, 0.14, 6),
@@ -264,7 +301,10 @@ export class PlayerModel {
     if (style === 'cap') {
       // Classic Angler Cap + Hair Tufts
       const capGeo = new THREE.SphereGeometry(0.44, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2);
-      const capMat = new THREE.MeshToonMaterial({ color: 0xd90429 });
+      const capMat = new THREE.MeshToonMaterial({
+        color: 0xd90429,
+        gradientMap: ToonGradients.getThreeTone()
+      });
       const cap = new THREE.Mesh(capGeo, capMat);
       cap.position.y = 0.15;
       const brimGeo = new THREE.CylinderGeometry(0.55, 0.55, 0.04, 12, 1, false, -Math.PI / 3, (Math.PI * 2) / 3);

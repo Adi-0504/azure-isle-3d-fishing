@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CreatureData } from '../../data/fish/CreatureDatabase';
+import { ToonGradients } from '../world/ToonGradients';
 
 export class CreatureModelGenerator {
   /**
@@ -37,13 +38,16 @@ export class CreatureModelGenerator {
 
   private static buildFishMesh(root: THREE.Group, data: CreatureData) {
     const bodyMat = new THREE.MeshToonMaterial({
-      color: data.colorBase
+      color: data.colorBase,
+      gradientMap: ToonGradients.getFiveTone()
     });
     const accentMat = new THREE.MeshToonMaterial({
-      color: data.colorAccent
+      color: data.colorAccent,
+      gradientMap: ToonGradients.getThreeTone()
     });
     const bellyMat = new THREE.MeshToonMaterial({
-      color: 0xffffff
+      color: 0xffffff,
+      gradientMap: ToonGradients.getThreeTone()
     });
     const eyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const pupilMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
@@ -192,9 +196,13 @@ export class CreatureModelGenerator {
     const mat = new THREE.MeshToonMaterial({
       color: data.colorBase,
       transparent: true,
-      opacity: 0.9
+      opacity: 0.9,
+      gradientMap: ToonGradients.getThreeTone()
     });
-    const accentMat = new THREE.MeshToonMaterial({ color: data.colorAccent });
+    const accentMat = new THREE.MeshToonMaterial({
+      color: data.colorAccent,
+      gradientMap: ToonGradients.getThreeTone()
+    });
 
     // Segmented curved body
     const segments = 4;
@@ -235,8 +243,14 @@ export class CreatureModelGenerator {
   }
 
   private static buildCrabMesh(root: THREE.Group, data: CreatureData) {
-    const mat = new THREE.MeshToonMaterial({ color: data.colorBase });
-    const pincerMat = new THREE.MeshToonMaterial({ color: data.colorAccent });
+    const mat = new THREE.MeshToonMaterial({
+      color: data.colorBase,
+      gradientMap: ToonGradients.getThreeTone()
+    });
+    const pincerMat = new THREE.MeshToonMaterial({
+      color: data.colorAccent,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
 
     // Wide Oval Carapace
@@ -286,8 +300,14 @@ export class CreatureModelGenerator {
   }
 
   private static buildClamMesh(root: THREE.Group, data: CreatureData) {
-    const shellMat = new THREE.MeshToonMaterial({ color: data.colorBase });
-    const innerMat = new THREE.MeshToonMaterial({ color: data.colorAccent });
+    const shellMat = new THREE.MeshToonMaterial({
+      color: data.colorBase,
+      gradientMap: ToonGradients.getThreeTone()
+    });
+    const innerMat = new THREE.MeshToonMaterial({
+      color: data.colorAccent,
+      gradientMap: ToonGradients.getThreeTone()
+    });
     const pearlMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       roughness: 0.1,

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ToonGradients } from './ToonGradients';
 
 export interface WaterRipple {
   pos: THREE.Vector3;
@@ -14,6 +15,8 @@ export class WaterSystem {
   private ripples: WaterRipple[] = [];
   private rippleGeo: THREE.RingGeometry;
   private rippleMat: THREE.MeshBasicMaterial;
+  private oceanFoamRing!: THREE.Mesh;
+  private lakeFoamRing!: THREE.Mesh;
 
   // Swimming fish shadow near bobber
   public fishShadow: THREE.Mesh;
@@ -25,19 +28,40 @@ export class WaterSystem {
     this.group.name = 'water_system';
 
     // Stylized semi-transparent ocean & river water plane
-    const waterGeo = new THREE.PlaneGeometry(240, 240, 48, 48);
+    const waterGeo = new THREE.PlaneGeometry(260, 260, 56, 56);
     waterGeo.rotateX(-Math.PI / 2);
 
     const waterMat = new THREE.MeshToonMaterial({
-      color: 0x48cae4,
+      color: 0x38bdf8,
+      gradientMap: ToonGradients.getFiveTone(),
       transparent: true,
-      opacity: 0.75
+      opacity: 0.82
     });
 
     this.waterMesh = new THREE.Mesh(waterGeo, waterMat);
     this.waterMesh.position.y = 0.45;
     this.waterMesh.receiveShadow = true;
     this.group.add(this.waterMesh);
+
+    // Stylized Shoreline Foam Ring (Coastal Island Rim)
+    const foamGeo = new THREE.RingGeometry(82, 86, 64);
+    foamGeo.rotateX(-Math.PI / 2);
+    const foamMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.65,
+      side: THREE.DoubleSide
+    });
+    this.oceanFoamRing = new THREE.Mesh(foamGeo, foamMat);
+    this.oceanFoamRing.position.y = 0.47;
+    this.group.add(this.oceanFoamRing);
+
+    // Lake Shoreline Foam Ring
+    const lakeFoamGeo = new THREE.RingGeometry(15, 16.5, 36);
+    lakeFoamGeo.rotateX(-Math.PI / 2);
+    this.lakeFoamRing = new THREE.Mesh(lakeFoamGeo, foamMat.clone());
+    this.lakeFoamRing.position.set(25, 0.47, 5);
+    this.group.add(this.lakeFoamRing);
 
     // Ripple template
     this.rippleGeo = new THREE.RingGeometry(0.1, 0.25, 24);
@@ -126,6 +150,14 @@ export class WaterSystem {
       this.fishShadow.position.lerp(this.shadowTarget, dt * 1.8);
       this.fishShadow.lookAt(this.shadowTarget.x, 0.35, this.shadowTarget.z);
       this.fishShadow.position.y = 0.35 + Math.sin(timeSec * 8) * 0.03;
+    }
+
+    // Shoreline foam gentle breathing surf
+    if (this.oceanFoamRing && this.lakeFoamRing) {
+      const foamPulse = 1.0 + Math.sin(timeSec * 1.8) * 0.015;
+      this.oceanFoamRing.scale.set(foamPulse, 1, foamPulse);
+      (this.oceanFoamRing.material as THREE.MeshBasicMaterial).opacity = 0.5 + Math.sin(timeSec * 1.8) * 0.15;
+      (this.lakeFoamRing.material as THREE.MeshBasicMaterial).opacity = 0.45 + Math.cos(timeSec * 1.5) * 0.12;
     }
   }
 }

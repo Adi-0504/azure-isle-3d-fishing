@@ -7,6 +7,7 @@ import { CatchResult } from '../fishing/FishingSystem';
 import { soundSynth } from '../audio/SoundSynthesizer';
 import * as THREE from 'three';
 import { CreatureModelGenerator } from '../ecology/CreatureModelGenerator';
+import { ICONS, getIconSvg, getStarsSvg } from './Icons';
 
 export class UIManager {
   public rootElement: HTMLElement;
@@ -75,10 +76,10 @@ export class UIManager {
     if (timeElem) timeElem.textContent = timeStr;
 
     const envElem = document.getElementById('hud-env');
-    if (envElem) envElem.textContent = `${seasonStr} • ${weatherStr} • 📍${biomeName}`;
+    if (envElem) envElem.textContent = `${seasonStr} • ${weatherStr} • ${biomeName}`;
 
-    const coinElem = document.getElementById('hud-coins');
-    if (coinElem) coinElem.textContent = `$${coins}`;
+    const coinVal = document.getElementById('hud-coins-val');
+    if (coinVal) coinVal.textContent = `$${coins}`;
 
     const staminaBar = document.getElementById('hud-stamina-fill');
     if (staminaBar) {
@@ -87,10 +88,10 @@ export class UIManager {
       staminaBar.style.backgroundColor = pct < 25 ? '#e63946' : '#2a9d8f';
     }
 
-    const gearElem = document.getElementById('hud-gear');
-    if (gearElem) {
+    const gearText = document.getElementById('hud-gear-text');
+    if (gearText) {
       const baitText = equippedBaitName ? ` [${equippedBaitName}]` : '';
-      gearElem.textContent = `🎣 ${equippedRodName}${baitText}`;
+      gearText.textContent = `${equippedRodName}${baitText}`;
     }
 
     const promptElem = document.getElementById('hud-prompt');
@@ -262,7 +263,7 @@ export class UIManager {
     const canvasContainer = document.getElementById('catch-3d-canvas')!;
 
     nameElem.textContent = result.creature.names[lang] || result.creature.names['en'];
-    starsElem.textContent = '★'.repeat(result.creature.rarity) + '☆'.repeat(5 - result.creature.rarity);
+    starsElem.innerHTML = getStarsSvg(result.creature.rarity);
     sizeElem.textContent = `${result.sizeCm} cm`;
     priceElem.textContent = `$${result.price}`;
     descElem.textContent = result.creature.descriptions[lang] || result.creature.descriptions['en'];
@@ -276,7 +277,7 @@ export class UIManager {
       nameElem.parentNode?.insertBefore(perfectBanner, nameElem);
     }
     if (result.isPerfectTiming) {
-      perfectBanner.textContent = '⭐ 完美起竿！(PERFECT CATCH) +15% 尺寸 & +25% 價值加成！';
+      perfectBanner.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;">${ICONS.star} 完美起竿！(PERFECT CATCH) +15% 尺寸 & +25% 價值加成！</span>`;
       perfectBanner.style.display = 'block';
     } else {
       perfectBanner.style.display = 'none';
@@ -331,20 +332,20 @@ export class UIManager {
         const creature = getCreatureById(slotData.itemId);
         const item = ITEMS_DATABASE[slotData.itemId];
 
-        let icon = '📦';
+        let iconSvg = getIconSvg('bag');
         let name = slotData.itemId;
         if (creature) {
-          icon = creature.category === 'fish' ? '🐟' : creature.category === 'shrimp' ? '🦐' : creature.category === 'crab' ? '🦀' : '🦪';
+          iconSvg = getIconSvg(creature.category, 'fish');
           name = `${creature.names[lang]} (${slotData.size}cm)`;
         } else if (item) {
-          icon = item.icon;
+          iconSvg = getIconSvg(item.icon, 'bag');
           name = item.names[lang];
         }
 
         const isEquipped = slotData.itemId === equippedRodId || slotData.itemId === equippedBaitId;
 
         slotDiv.innerHTML = `
-          <div class="slot-icon">${icon}</div>
+          <div class="slot-icon">${iconSvg}</div>
           <div class="slot-name">${name}</div>
           ${slotData.quantity > 1 ? `<span class="slot-qty">x${slotData.quantity}</span>` : ''}
           ${isEquipped ? `<span class="slot-tag">E</span>` : ''}
@@ -406,7 +407,7 @@ export class UIManager {
         card.innerHTML = `
           <div class="card-header">
             <span class="card-name">${data.names[lang]}</span>
-            <span class="card-stars">${'★'.repeat(data.rarity)}</span>
+            <span class="card-stars">${getStarsSvg(data.rarity)}</span>
           </div>
           <div class="card-stats">
             <div>${t('coins')}: $${data.basePrice}</div>
@@ -419,7 +420,7 @@ export class UIManager {
         card.innerHTML = `
           <div class="card-header">
             <span class="card-name">???</span>
-            <span class="card-stars">?????</span>
+            <span class="card-stars">${getStarsSvg(0)}</span>
           </div>
           <div class="card-desc">探索島嶼解鎖此生物資料...</div>
         `;
@@ -446,7 +447,7 @@ export class UIManager {
       const itemCard = document.createElement('div');
       itemCard.className = 'shop-card';
       itemCard.innerHTML = `
-        <div class="shop-card-icon">${item.icon}</div>
+        <div class="shop-card-icon">${getIconSvg(item.icon, 'rod')}</div>
         <div class="shop-card-title">${item.names[lang]}</div>
         <div class="shop-card-desc">${item.description[lang]}</div>
         <div class="shop-card-footer">
@@ -499,7 +500,7 @@ export class UIManager {
         <div class="quest-footer">
           <span>進度: ${curProg} / ${q.targetCount}</span>
           <span>獎勵: +$${q.rewardCoins}</span>
-          ${isReadyToClaim ? `<button class="btn-claim">${t('claimReward')}</button>` : isCompleted ? `<span>✓ ${t('questCompleted')}</span>` : ''}
+          ${isReadyToClaim ? `<button class="btn-claim">${t('claimReward')}</button>` : isCompleted ? `<span style="display:inline-flex;align-items:center;gap:4px;color:#2a9d8f;">${ICONS.check} ${t('questCompleted')}</span>` : ''}
         </div>
       `;
 
@@ -638,7 +639,7 @@ export class UIManager {
     });
   }
 
-  public showToast(message: string, icon = '✨') {
+  public showToast(message: string, icon = ICONS.sparkle) {
     let toast = document.getElementById('floating-toast');
     if (!toast) {
       toast = document.createElement('div');
@@ -646,7 +647,7 @@ export class UIManager {
       toast.className = 'floating-toast-pill interactive-ui';
       this.rootElement.appendChild(toast);
     }
-    toast.innerHTML = `<span class="toast-icon">${icon}</span> <span>${message}</span>`;
+    toast.innerHTML = `<span class="toast-icon" style="display:inline-flex;align-items:center;">${icon}</span> <span>${message}</span>`;
     toast.classList.remove('toast-show');
     void toast.offsetWidth;
     toast.classList.add('toast-show');

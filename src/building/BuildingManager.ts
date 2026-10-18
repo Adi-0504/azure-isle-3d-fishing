@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CreatureData, getCreatureById } from '../../data/fish/CreatureDatabase';
 import { CreatureModelGenerator } from '../ecology/CreatureModelGenerator';
+import { ToonGradients } from '../world/ToonGradients';
 
 export class BuildingManager {
   public group: THREE.Group;
@@ -40,15 +41,24 @@ export class BuildingManager {
       // Starter Tent
       const tentGeo = new THREE.ConeGeometry(2.2, 2.0, 4);
       tentGeo.rotateY(Math.PI / 4);
-      const tentMat = new THREE.MeshToonMaterial({ color: 0xf4a261 });
+      const tentMat = new THREE.MeshToonMaterial({
+        color: 0xf4a261,
+        gradientMap: ToonGradients.getThreeTone()
+      });
       const tent = new THREE.Mesh(tentGeo, tentMat);
       tent.position.y = 1.0;
       tent.castShadow = true;
       this.cabinGroup.add(tent);
     } else {
       // Tier 1 / 2: Solid Log Cabin
-      const woodWallMat = new THREE.MeshToonMaterial({ color: 0x8b5a2b });
-      const roofMat = new THREE.MeshToonMaterial({ color: 0xb7094c });
+      const woodWallMat = new THREE.MeshToonMaterial({
+        color: 0x8b5a2b,
+        gradientMap: ToonGradients.getThreeTone()
+      });
+      const roofMat = new THREE.MeshToonMaterial({
+        color: 0xb7094c,
+        gradientMap: ToonGradients.getThreeTone()
+      });
       const glassMat = new THREE.MeshStandardMaterial({ color: 0xa8dadc, transparent: true, opacity: 0.6 });
 
       // Cabin Body
@@ -72,25 +82,40 @@ export class BuildingManager {
       this.cabinGroup.add(win);
 
       // Door
-      const doorMat = new THREE.MeshToonMaterial({ color: 0x5c4033 });
+      const doorMat = new THREE.MeshToonMaterial({
+        color: 0x5c4033,
+        gradientMap: ToonGradients.getThreeTone()
+      });
       const door = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.6, 0.1), doorMat);
       door.position.set(-0.7, 0.8, 1.62);
       this.cabinGroup.add(door);
 
       // Tier 2 additions: Veranda deck & flower planters
       if (this.cabinTier >= 2) {
-        const deckMat = new THREE.MeshToonMaterial({ color: 0xa0522d });
+        const deckMat = new THREE.MeshToonMaterial({
+          color: 0xa0522d,
+          gradientMap: ToonGradients.getThreeTone()
+        });
         const deck = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.2, 1.4), deckMat);
         deck.position.set(0, 0.1, 2.3);
         deck.castShadow = true;
         this.cabinGroup.add(deck);
 
         // Flower planters
-        const planterMat = new THREE.MeshToonMaterial({ color: 0xe76f51 });
+        const planterMat = new THREE.MeshToonMaterial({
+          color: 0xe76f51,
+          gradientMap: ToonGradients.getThreeTone()
+        });
         [-1.6, 1.6].forEach(px => {
           const pot = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.4, 0.4), planterMat);
           pot.position.set(px, 0.4, 2.6);
-          const flower = new THREE.Mesh(new THREE.DodecahedronGeometry(0.25, 0), new THREE.MeshToonMaterial({ color: 0xffb703 }));
+          const flower = new THREE.Mesh(
+            new THREE.DodecahedronGeometry(0.25, 0),
+            new THREE.MeshToonMaterial({
+              color: 0xffb703,
+              gradientMap: ToonGradients.getThreeTone()
+            })
+          );
           flower.position.set(px, 0.7, 2.6);
           this.cabinGroup.add(pot, flower);
         });

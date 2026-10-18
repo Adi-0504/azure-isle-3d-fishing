@@ -31,7 +31,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     price: 0,
     tier: 1,
     bonus: 1.0,
-    icon: '🎣',
+    icon: 'rod',
     description: {
       'zh-TW': '以島上竹子削製而成的初學者釣竿，雖質樸但能釣起淺灘小魚與甲殼生物。',
       'zh-CN': '以岛上竹子削制而成的初学者钓竿，虽质朴但能钓起浅滩小鱼与甲壳生物。',
@@ -59,7 +59,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     price: 200,
     tier: 2,
     bonus: 1.3,
-    icon: '🎣',
+    icon: 'rod',
     description: {
       'zh-TW': '輕量化高彈性碳纖維打造，咬鉤反應更快，可挑戰中型與深水生物。',
       'zh-CN': '轻量化高弹性碳纤维打造，咬钩反应更快，可挑战中型与深水生物。',
@@ -87,7 +87,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     price: 600,
     tier: 3,
     bonus: 1.6,
-    icon: '🎣',
+    icon: 'rod',
     description: {
       'zh-TW': '具備強韌耐鹽蝕金屬導環與高拉力腰身，能征服外海礁岩的狂暴巨魚。',
       'zh-CN': '具备强韧耐盐蚀金属导环与高拉力腰身，能征服外海礁岩的狂暴巨鱼。',
@@ -115,7 +115,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     price: 1500,
     tier: 4,
     bonus: 2.0,
-    icon: '✨',
+    icon: 'rod',
     description: {
       'zh-TW': '島嶼工匠淬鍊的傳奇金箔釣竿，散發微光，極大提高所有稀有傳說生物的上鉤率！',
       'zh-CN': '岛屿工匠淬炼的传奇金箔钓竿，散发微光，极大提高所有稀有传说生物的上钩率！',
@@ -144,7 +144,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     type: 'bait',
     price: 5,
     bonus: 1.25,
-    icon: '🪱',
+    icon: 'worm',
     description: {
       'zh-TW': '肥美多汁的天然土壤紅蚯蚓，能縮短 25% 咬鉤等待時間。',
       'zh-CN': '肥美多汁的天然土壤红蚯蚓，能缩短 25% 咬钩等待时间。',
@@ -171,7 +171,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     type: 'bait',
     price: 18,
     bonus: 1.5,
-    icon: '💡',
+    icon: 'glow',
     description: {
       'zh-TW': '混入螢光藻類的特殊餌料，在夜間與陰雨深水中格外誘人，咬鉤率 +50%。',
       'zh-CN': '混入荧光藻类的特殊饵料，在夜间与阴雨深水中格外诱人，咬钩率 +50%。',
@@ -198,7 +198,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     type: 'bait',
     price: 45,
     bonus: 2.0,
-    icon: '🦐',
+    icon: 'shrimp',
     description: {
       'zh-TW': '加入濃縮蝦膏與香料的奢華魚餌，能大幅吸引稀有星級生物靠近！',
       'zh-CN': '加入浓缩虾膏与香料的奢华鱼饵，能大幅吸引稀有星级生物靠近！',
@@ -226,7 +226,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     },
     type: 'upgrade',
     price: 180,
-    icon: '🎒',
+    icon: 'bag',
     description: {
       'zh-TW': '將背包容量從初始 12 格擴充至 20 格，容納更多魚類與物資。',
       'zh-CN': '将背包容量从初始 12 格扩充至 20 格，容纳更多鱼类与物资。',
@@ -252,7 +252,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     },
     type: 'upgrade',
     price: 450,
-    icon: '🎒',
+    icon: 'bag',
     description: {
       'zh-TW': '將背包容量進一步升級至 30 格，長途釣魚探險毫無後顧之憂。',
       'zh-CN': '将背包容量进一步升级至 30 格，长途钓鱼探险毫无后顾之忧。',
@@ -278,7 +278,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     },
     type: 'blueprint',
     price: 300,
-    icon: '🏡',
+    icon: 'home',
     description: {
       'zh-TW': '在營地搭建第一座溫暖的木質小屋，告別單薄帳篷，解鎖個人水族箱空間！',
       'zh-CN': '在营地搭建第一座温暖的木质小屋，告别单薄帐篷，解锁个人水族箱空间！',
@@ -304,7 +304,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     },
     type: 'blueprint',
     price: 750,
-    icon: '🌻',
+    icon: 'flower',
     description: {
       'zh-TW': '為小屋增設木質觀景露台、屋簷風鈴與鮮花庭院，外觀更加精緻舒適。',
       'zh-CN': '为小屋增设木质观景露台、屋檐风铃与鲜花庭院，外观更加精致舒适。',
@@ -330,7 +330,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     },
     type: 'blueprint',
     price: 220,
-    icon: '🫧',
+    icon: 'aquarium',
     description: {
       'zh-TW': '裝備於木屋中的清澈玻璃水箱，配備氧氣泵與柔和射燈，可放入喜愛的魚類游泳。',
       'zh-CN': '装备于木屋中的清澈玻璃水箱，配备氧气泵与柔和射灯，可放入喜爱的鱼类游泳。',
@@ -356,7 +356,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     },
     type: 'blueprint',
     price: 350,
-    icon: '🏛️',
+    icon: 'museum',
     description: {
       'zh-TW': '資助島嶼博物館落成第一批展示水槽，供全島居民與遊客欣賞溪流與沙灘生物。純展示無營利。',
       'zh-CN': '资助岛屿博物馆落成第一批展示水槽，供全岛居民与游客欣赏溪流与沙滩生物。纯展示无营利。',
@@ -382,7 +382,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     },
     type: 'blueprint',
     price: 800,
-    icon: '🪸',
+    icon: 'museum',
     description: {
       'zh-TW': '擴建潮間帶岩石潮池與活體珊瑚造景展廳，生動展示蝦蟹甲殼類的生活習性。',
       'zh-CN': '扩建潮间带岩石潮池与活体珊瑚造景展厅，生动展示虾蟹甲壳类的生活习性。',
@@ -408,7 +408,7 @@ export const ITEMS_DATABASE: Record<string, ItemData> = {
     },
     type: 'blueprint',
     price: 1800,
-    icon: '🌊',
+    icon: 'museum',
     description: {
       'zh-TW': '最高等級的環形深海巨幕展館，讓蒼蘭鮪與深海巨蟹在如夢似幻的深藍燈光下游弋！',
       'zh-CN': '最高等级的环形深海巨幕展馆，让苍兰鲔与深海巨蟹在如梦似幻的深蓝灯光下游弋！',
