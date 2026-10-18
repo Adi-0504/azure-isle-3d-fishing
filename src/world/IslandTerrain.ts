@@ -2,6 +2,22 @@ import * as THREE from 'three';
 import { BiomeId } from '../../data/fish/CreatureDatabase';
 import { ToonGradients } from './ToonGradients';
 
+export interface ObstacleCollider {
+  x: number;
+  z: number;
+  radius: number;
+  name?: string;
+}
+
+export interface WalkableDeck {
+  id: string;
+  minX: number;
+  maxX: number;
+  minZ: number;
+  maxZ: number;
+  deckY: number;
+}
+
 export class IslandTerrain {
   public group: THREE.Group;
   public terrainMesh!: THREE.Mesh;
@@ -9,11 +25,15 @@ export class IslandTerrain {
   public foliageMaterials: THREE.MeshToonMaterial[] = [];
   public interactableTerminals: { pos: THREE.Vector3; type: 'shop' | 'quest' }[] = [];
   public campProps: THREE.Group[] = [];
-  public grassTufts: THREE.Group[] = [];
+  public colliders: ObstacleCollider[] = [];
+  public walkableDecks: WalkableDeck[] = [];
+  private grassInstancedMesh!: THREE.InstancedMesh;
+  private grassUniforms: { [uniform: string]: THREE.IUniform<any> } | null = null;
 
   constructor() {
     this.group = new THREE.Group();
     this.group.name = 'island_world';
+    this.setupWalkableDecks();
     this.buildTerrain();
     this.populateBiomes();
     this.buildCampSite();
@@ -86,14 +106,119 @@ export class IslandTerrain {
     return 'stream';
   }
 
+  private setupWalkableDecks() {
+    this.walkableDecks = [
+      // South Beach Fishing Pier (startX: 2, startY: 0.55, startZ: 44, length: 14)
+      {
+        id: 'pier_south',
+        minX: 0.75,
+        maxX: 3.25,
+        minZ: 43.5,
+        maxZ: 58.2,
+        deckY: 0.60
+      },
+      // Highland Lake Pier (startX: 25, startY: 1.35, startZ: 7, length: 9, dir: north)
+      {
+        id: 'pier_lake',
+        minX: 23.75,
+        maxX: 26.25,
+        minZ: -2.2,
+        maxZ: 7.5,
+        deckY: 1.42
+      },
+      // Forest Stream Bridge 1 (South: -15, 12)
+      {
+        id: 'bridge_stream_south',
+        minX: -16.8,
+        maxX: -13.2,
+        minZ: 10.8,
+        maxZ: 13.2,
+        deckY: this.getTerrainHeight(-15, 12) + 0.28
+      },
+      // Forest Stream Bridge 2 (North: -13, -8)
+      {
+        id: 'bridge_stream_north',
+        minX: -14.8,
+        maxX: -11.2,
+        minZ: -9.2,
+        maxZ: -6.8,
+        deckY: this.getTerrainHeight(-13, -8) + 0.28
+      }
+    ];
+  }
+
+  public isOnWalkableDeck(x: number, z: number): WalkableDeck | null {
+    for (let i = 0; i < this.walkableDecks.length; i++) {
+      const d = this.walkableDecks[i];
+      if (x >= d.minX && x <= d.maxX && z >= d.minZ && z <= d.maxZ) {
+        return d;
+      }
+    }
+    return null;
+  }
+
+  public getWalkHeight(x: number, z: number): number {
+    const deck = this.isOnWalkableDeck(x, z);
+    const th = this.getTerrainHeight(x, z);
+    if (deck) {
+      return Math.max(th, deck.deckY);
+    }
+    return th;
+  }
+
+  public isWalkable(x: number, z: number, playerRadius = 0.35): boolean {
+    const onDeck = this.isOnWalkableDeck(x, z);
+
+    if (!onDeck) {
+      // 1. Outer Island perimeter boundary (safe cutoff before dome drops into deep sea)
+      const distFromCenter = Math.hypot(x, z);
+      if (distFromCenter > 78.5) {
+        return false;
+      }
+
+      // 2. Deep ocean water boundary (sea surface at y = 0.5; terrain < 0.28 is deep sea)
+      const h = this.getTerrainHeight(x, z);
+      if (h < 0.28) {
+        return false;
+      }
+
+      // 3. Highland Lake deep water boundary (lake center at 25, 5)
+      const lakeDist = Math.hypot(x - 25, z - 5);
+      if (lakeDist < 12.0) {
+        return false;
+      }
+
+      // 4. Forest Stream deep water boundary
+      const streamX = -15 + Math.sin(z * 0.15) * 6;
+      if (Math.abs(x - streamX) < 2.5 && z > -22 && z < 42 && h < 0.3) {
+        return false;
+      }
+    }
+
+    // 5. Solid obstacles collision (trees, rocks, campsite facilities, beacon pillars)
+    for (let i = 0; i < this.colliders.length; i++) {
+      const c = this.colliders[i];
+      const dx = x - c.x;
+      const dz = z - c.z;
+      const minD = c.radius + playerRadius;
+      if (dx * dx + dz * dz < minD * minD) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   public isNearWater(x: number, z: number): boolean {
+    if (this.isOnWalkableDeck(x, z)) return true;
+
     const h = this.getTerrainHeight(x, z);
-    // Water plane is at Y = 0.5; near water is height between 0.3 and 1.8
-    if (h < 1.6 && h > 0.0) return true;
+    // Water plane is at Y = 0.5; near water is height between 0.28 and 1.8
+    if (h < 1.8 && h >= 0.25) return true;
 
     // Or proximity to Highland Lake shore
     const lakeDist = Math.hypot(x - 25, z - 5);
-    if (lakeDist >= 12 && lakeDist <= 17) return true;
+    if (lakeDist >= 11.5 && lakeDist <= 17.5) return true;
 
     // Or proximity to Forest Stream
     const streamX = -15 + Math.sin(z * 0.15) * 6;
@@ -167,6 +292,9 @@ export class IslandTerrain {
       if (Math.abs(x - streamX) < 4.5 && z > -25 && z < 45) continue;
       // Don't spawn in campsite clearing
       if (Math.hypot(x, z - 5) < 9) continue;
+      // Don't spawn on piers or bridges
+      if (this.isOnWalkableDeck(x, z)) continue;
+      if (Math.hypot(x - 2, z - 44) < 5 || Math.hypot(x - 25, z - 7) < 5) continue;
 
       const y = this.getTerrainHeight(x, z);
       if (y < 0.5) continue; // no trees under water
@@ -258,9 +386,18 @@ export class IslandTerrain {
     const scale = 0.8 + Math.random() * 0.5;
     treeGroup.scale.set(scale, scale, scale);
     this.group.add(treeGroup);
+
+    // Register tree trunk collider
+    this.colliders.push({ x, z, radius: 0.65 * scale, name: 'tree' });
   }
 
   private spawnRock(x: number, y: number, z: number) {
+    // Don't spawn rock on piers, bridges or paths
+    if (this.isOnWalkableDeck(x, z)) return;
+    if (Math.hypot(x - 2, z - 44) < 5 || Math.hypot(x - 25, z - 7) < 5) return;
+    if (Math.hypot(x - (-15), z - 12) < 4 || Math.hypot(x - (-13), z - (-8)) < 4) return;
+    if (Math.hypot(x, z - 5) < 8) return; // avoid campsite
+
     const rockGeo = new THREE.DodecahedronGeometry(0.8 + Math.random() * 0.8, 0);
     const rockMat = new THREE.MeshToonMaterial({
       color: 0x7f8c8d,
@@ -272,6 +409,9 @@ export class IslandTerrain {
     rock.scale.set(1.2, 0.7, 1.0);
     rock.castShadow = true;
     this.group.add(rock);
+
+    // Register rock collider
+    this.colliders.push({ x, z, radius: 0.85, name: 'rock' });
   }
 
   private spawnWoodenBridge(x: number, y: number, z: number) {
@@ -373,16 +513,23 @@ export class IslandTerrain {
     base.position.y = 0.4;
     base.castShadow = true;
     beaconGroup.add(base);
-    base.castShadow = true;
-    beaconGroup.add(base);
 
     // 4 Classical Pillars
     for (let i = 0; i < 4; i++) {
       const ang = (i / 4) * Math.PI * 2;
+      const px = Math.cos(ang) * 2.2;
+      const pz = Math.sin(ang) * 2.2;
       const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 3.2, 8), stoneMat);
-      pillar.position.set(Math.cos(ang) * 2.2, 2.0, Math.sin(ang) * 2.2);
+      pillar.position.set(px, 2.0, pz);
       pillar.castShadow = true;
       beaconGroup.add(pillar);
+
+      this.colliders.push({
+        x: x + px,
+        z: z + pz,
+        radius: 0.45,
+        name: 'beacon_pillar'
+      });
     }
 
     // Glowing Lantern Centerpiece
@@ -391,6 +538,7 @@ export class IslandTerrain {
     const light = new THREE.PointLight(0xffb703, 2.5, 25);
     light.position.y = 2.2;
     beaconGroup.add(lantern, light);
+    this.colliders.push({ x, z, radius: 0.75, name: 'beacon_lantern' });
 
     // Domed Peak Roof
     const roof = new THREE.Mesh(new THREE.ConeGeometry(3.5, 1.8, 12), roofMat);
@@ -499,56 +647,71 @@ export class IslandTerrain {
 
     signGroup.add(post, arrowBeach, arrowLake);
     this.group.add(signGroup);
+
+    // Register signpost collider
+    this.colliders.push({ x: 0, z: 18, radius: 0.35, name: 'signpost' });
   }
 
   private spawnGrassTufts() {
-    const grassMat1 = new THREE.MeshToonMaterial({
-      color: 0x5bb056,
-      gradientMap: ToonGradients.getThreeTone(),
-      side: THREE.DoubleSide
-    });
-    const grassMat2 = new THREE.MeshToonMaterial({
-      color: 0x7ec850,
+    const grassMat = new THREE.MeshToonMaterial({
+      color: 0x6dbf67,
       gradientMap: ToonGradients.getThreeTone(),
       side: THREE.DoubleSide
     });
 
-    // Single blade geometry: tapered triangle
+    grassMat.onBeforeCompile = (shader) => {
+      shader.uniforms.uTime = { value: 0 };
+      this.grassUniforms = shader.uniforms;
+      shader.vertexShader = `uniform float uTime;\n` + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+        float sway = sin(uTime * 2.5 + position.x * 2.0 + position.z * 1.5) * 0.12 * max(0.0, position.y);
+        transformed.x += sway;
+        transformed.z += sway * 0.5;`
+      );
+    };
+
     const bladeGeo = new THREE.ConeGeometry(0.12, 0.65, 3);
     bladeGeo.scale(0.15, 1, 1);
     bladeGeo.translate(0, 0.32, 0);
 
-    for (let i = 0; i < 180; i++) {
+    const maxBlades = 360;
+    this.grassInstancedMesh = new THREE.InstancedMesh(bladeGeo, grassMat, maxBlades);
+    this.grassInstancedMesh.receiveShadow = true;
+
+    const dummy = new THREE.Object3D();
+    let bladeIdx = 0;
+
+    for (let i = 0; i < 110 && bladeIdx < maxBlades; i++) {
       const angle = Math.random() * Math.PI * 2;
       const r = 8 + Math.random() * 68;
       const x = Math.cos(angle) * r;
       const z = Math.sin(angle) * r;
 
       const y = this.getTerrainHeight(x, z);
-      if (y < 0.6 || y > 7.5) continue; // meadow heights only
-      // Don't spawn inside lake or campfire
+      if (y < 0.6 || y > 7.5) continue;
       if (Math.hypot(x - 25, z - 5) < 15) continue;
       if (Math.hypot(x, z - 5) < 4) continue;
 
-      const tuft = new THREE.Group();
-      tuft.position.set(x, y, z);
-      const mat = (i % 2 === 0) ? grassMat1 : grassMat2;
-
-      // 3-4 blades tilted outwards
-      const numBlades = 3 + Math.floor(Math.random() * 2);
-      for (let b = 0; b < numBlades; b++) {
-        const blade = new THREE.Mesh(bladeGeo, mat);
+      const numBlades = 3;
+      for (let b = 0; b < numBlades && bladeIdx < maxBlades; b++) {
+        dummy.position.set(
+          x + (Math.random() - 0.5) * 0.3,
+          y,
+          z + (Math.random() - 0.5) * 0.3
+        );
         const bladeAngle = (b / numBlades) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
-        blade.rotation.y = bladeAngle;
-        blade.rotation.z = 0.25 + Math.random() * 0.2;
-        const bladeScale = 0.7 + Math.random() * 0.5;
-        blade.scale.set(bladeScale, bladeScale, bladeScale);
-        tuft.add(blade);
+        dummy.rotation.set(0.15, bladeAngle, 0.2 + (Math.random() - 0.5) * 0.15);
+        const s = 0.75 + Math.random() * 0.45;
+        dummy.scale.set(s, s, s);
+        dummy.updateMatrix();
+        this.grassInstancedMesh.setMatrixAt(bladeIdx++, dummy.matrix);
       }
-
-      this.group.add(tuft);
-      this.grassTufts.push(tuft);
     }
+
+    this.grassInstancedMesh.instanceMatrix.needsUpdate = true;
+    this.group.add(this.grassInstancedMesh);
   }
 
   private buildCampSite() {
@@ -561,18 +724,6 @@ export class IslandTerrain {
     campGroup.position.set(campX, campY, campZ);
     this.campProps.push(campGroup);
     this.group.add(campGroup);
-
-    // 1. Canvas Tent
-    const tentMat = new THREE.MeshToonMaterial({
-      color: 0xf4a261,
-      gradientMap: ToonGradients.getThreeTone()
-    });
-    const tentGeo = new THREE.ConeGeometry(2.2, 2.0, 4);
-    tentGeo.rotateY(Math.PI / 4);
-    const tent = new THREE.Mesh(tentGeo, tentMat);
-    tent.position.set(-2.5, 1.0, -1.5);
-    tent.castShadow = true;
-    campGroup.add(tent);
 
     // 2. Campfire with warm light and glowing embers
     const firePit = new THREE.Group();
@@ -665,13 +816,19 @@ export class IslandTerrain {
       pos: new THREE.Vector3(campX - 2.8, campY, campZ + 0.5),
       type: 'quest'
     });
+
+    // Register campsite physical colliders
+    this.colliders.push({ x: campX - 2.5, z: campZ - 1.5, radius: 1.75, name: 'camp_cabin' });
+    this.colliders.push({ x: campX, z: campZ + 1.0, radius: 0.75, name: 'camp_firepit' });
+    this.colliders.push({ x: campX + 1.5, z: campZ + 1.2, radius: 0.7, name: 'camp_bench' });
+    this.colliders.push({ x: campX - 1.8, z: campZ + 1.5, radius: 0.55, name: 'camp_crate' });
+    this.colliders.push({ x: campX + 2.8, z: campZ - 1.0, radius: 0.7, name: 'camp_shop_terminal' });
+    this.colliders.push({ x: campX - 2.8, z: campZ + 0.5, radius: 0.6, name: 'camp_quest_board' });
   }
 
   public update(_dt: number, timeSec: number) {
-    for (let i = 0; i < this.grassTufts.length; i++) {
-      const g = this.grassTufts[i];
-      g.rotation.z = Math.sin(timeSec * 2.2 + g.position.x * 0.3 + g.position.z * 0.2) * 0.1;
-      g.rotation.x = Math.cos(timeSec * 1.8 + g.position.z * 0.3) * 0.08;
+    if (this.grassUniforms) {
+      this.grassUniforms.uTime.value = timeSec;
     }
   }
 

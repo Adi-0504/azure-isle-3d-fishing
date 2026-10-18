@@ -63,7 +63,7 @@ export class PlayerController {
     this.camera = camera;
     this.terrain = terrain;
 
-    this.position.y = this.terrain.getTerrainHeight(this.position.x, this.position.z);
+    this.position.y = this.terrain.getWalkHeight(this.position.x, this.position.z);
     this.playerModel.group.position.copy(this.position);
 
     this.bindEvents();
@@ -162,14 +162,35 @@ export class PlayerController {
         .normalize();
 
       const speed = isActuallyRunning ? this.sprintSpeed : this.walkSpeed;
-      const nextX = this.position.x + moveDir.x * speed * dt;
-      const nextZ = this.position.z + moveDir.z * speed * dt;
+      const stepX = moveDir.x * speed * dt;
+      const stepZ = moveDir.z * speed * dt;
 
-      // Island boundary clamp
-      const dist = Math.hypot(nextX, nextZ);
-      if (dist < 82) {
-        this.position.x = nextX;
-        this.position.z = nextZ;
+      // Solid collision resolution with dual-axis tangential sliding
+      const playerRadius = 0.35;
+      const targetX = this.position.x + stepX;
+      const targetZ = this.position.z + stepZ;
+
+      if (this.terrain.isWalkable(targetX, targetZ, playerRadius)) {
+        this.position.x = targetX;
+        this.position.z = targetZ;
+      } else {
+        // Slide along X if open
+        const canSlideX = this.terrain.isWalkable(targetX, this.position.z, playerRadius);
+        // Slide along Z if open
+        const canSlideZ = this.terrain.isWalkable(this.position.x, targetZ, playerRadius);
+
+        if (canSlideX && !canSlideZ) {
+          this.position.x = targetX;
+        } else if (canSlideZ && !canSlideX) {
+          this.position.z = targetZ;
+        } else if (canSlideX && canSlideZ) {
+          // If both single axes can slide, prioritize the axis with greater velocity
+          if (Math.abs(stepX) >= Math.abs(stepZ)) {
+            this.position.x = targetX;
+          } else {
+            this.position.z = targetZ;
+          }
+        }
       }
 
       // Smooth rotate player toward move direction
@@ -184,8 +205,8 @@ export class PlayerController {
       }
     }
 
-    // Jump & gravity physics
-    const groundY = this.terrain.getTerrainHeight(this.position.x, this.position.z);
+    // Jump & gravity physics (using walkable deck/terrain surface height)
+    const groundY = this.terrain.getWalkHeight(this.position.x, this.position.z);
     if (!this.isGrounded) {
       this.velocityY -= 18.0 * dt;
       this.position.y += this.velocityY * dt;
@@ -215,8 +236,8 @@ export class PlayerController {
     const cz = target.z + this.cameraDistance * Math.cos(this.cameraYaw) * Math.cos(this.cameraPitch);
     let cy = target.y + this.cameraDistance * Math.sin(this.cameraPitch);
 
-    // Prevent camera sinking into island terrain
-    const terrainUnderCam = this.terrain.getTerrainHeight(cx, cz);
+    // Prevent camera sinking into island terrain or pier decks
+    const terrainUnderCam = this.terrain.getWalkHeight(cx, cz);
     cy = Math.max(cy, terrainUnderCam + 1.2);
 
     const desiredCamPos = new THREE.Vector3(cx, cy, cz);

@@ -35,10 +35,41 @@ export class UIManager {
   private previewModel: THREE.Group | null = null;
   private previewAnimFrame: number | null = null;
 
+  // Cached HUD DOM elements for zero-allocation 60 FPS rendering
+  private hudElem: HTMLElement | null = null;
+  private timeElem: HTMLElement | null = null;
+  private envElem: HTMLElement | null = null;
+  private coinValElem: HTMLElement | null = null;
+  private staminaBarElem: HTMLElement | null = null;
+  private gearTextElem: HTMLElement | null = null;
+  private promptElem: HTMLElement | null = null;
+  private radarDotElem: HTMLElement | null = null;
+
+  // State cache for DOM diffing
+  private lastTimeStr = '';
+  private lastEnvStr = '';
+  private lastCoins = -1;
+  private lastStaminaPct = -1;
+  private lastGearStr = '';
+  private lastPromptText = '';
+  private lastPromptDisplay = '';
+
   constructor(saveManager: SaveManager) {
     this.saveManager = saveManager;
     this.rootElement = document.getElementById('ui-container') || document.body;
     this.initPreviewRenderer();
+    this.initHUDCache();
+  }
+
+  private initHUDCache() {
+    this.hudElem = document.getElementById('game-hud');
+    this.timeElem = document.getElementById('hud-time');
+    this.envElem = document.getElementById('hud-env');
+    this.coinValElem = document.getElementById('hud-coins-val');
+    this.staminaBarElem = document.getElementById('hud-stamina-fill');
+    this.gearTextElem = document.getElementById('hud-gear-text');
+    this.promptElem = document.getElementById('hud-prompt');
+    this.radarDotElem = document.getElementById('radar-player-dot');
   }
 
   private initPreviewRenderer() {
@@ -69,41 +100,61 @@ export class UIManager {
     isNearWater: boolean,
     canInteract: boolean
   ) {
-    const hud = document.getElementById('game-hud');
-    if (!hud) return;
-
-    const timeElem = document.getElementById('hud-time');
-    if (timeElem) timeElem.textContent = timeStr;
-
-    const envElem = document.getElementById('hud-env');
-    if (envElem) envElem.textContent = `${seasonStr} • ${weatherStr} • ${biomeName}`;
-
-    const coinVal = document.getElementById('hud-coins-val');
-    if (coinVal) coinVal.textContent = `$${coins}`;
-
-    const staminaBar = document.getElementById('hud-stamina-fill');
-    if (staminaBar) {
-      const pct = (stamina / maxStamina) * 100;
-      staminaBar.style.width = `${pct}%`;
-      staminaBar.style.backgroundColor = pct < 25 ? '#e63946' : '#2a9d8f';
+    if (!this.hudElem) {
+      this.initHUDCache();
+      if (!this.hudElem) return;
     }
 
-    const gearText = document.getElementById('hud-gear-text');
-    if (gearText) {
-      const baitText = equippedBaitName ? ` [${equippedBaitName}]` : '';
-      gearText.textContent = `${equippedRodName}${baitText}`;
+    if (this.timeElem && timeStr !== this.lastTimeStr) {
+      this.timeElem.textContent = timeStr;
+      this.lastTimeStr = timeStr;
     }
 
-    const promptElem = document.getElementById('hud-prompt');
-    if (promptElem) {
+    const envStr = `${seasonStr} • ${weatherStr} • ${biomeName}`;
+    if (this.envElem && envStr !== this.lastEnvStr) {
+      this.envElem.textContent = envStr;
+      this.lastEnvStr = envStr;
+    }
+
+    if (this.coinValElem && coins !== this.lastCoins) {
+      this.coinValElem.textContent = `$${coins}`;
+      this.lastCoins = coins;
+    }
+
+    if (this.staminaBarElem) {
+      const pct = Math.round((stamina / maxStamina) * 100);
+      if (pct !== this.lastStaminaPct) {
+        this.staminaBarElem.style.width = `${pct}%`;
+        this.staminaBarElem.style.backgroundColor = pct < 25 ? '#e63946' : '#2a9d8f';
+        this.lastStaminaPct = pct;
+      }
+    }
+
+    const baitText = equippedBaitName ? ` [${equippedBaitName}]` : '';
+    const gearStr = `${equippedRodName}${baitText}`;
+    if (this.gearTextElem && gearStr !== this.lastGearStr) {
+      this.gearTextElem.textContent = gearStr;
+      this.lastGearStr = gearStr;
+    }
+
+    if (this.promptElem) {
+      let nextPromptText = '';
+      let nextDisplay = 'none';
       if (canInteract) {
-        promptElem.textContent = `[ E / 點擊 ] ${t('vendingTerminal')}`;
-        promptElem.style.display = 'block';
+        nextPromptText = `[ E / 點擊 ] ${t('vendingTerminal')}`;
+        nextDisplay = 'block';
       } else if (isNearWater) {
-        promptElem.textContent = `[ 空白鍵 / 拋竿 ] ${t('fishingPrompt')}`;
-        promptElem.style.display = 'block';
-      } else {
-        promptElem.style.display = 'none';
+        nextPromptText = `[ 空白鍵 / 拋竿 ] ${t('fishingPrompt')}`;
+        nextDisplay = 'block';
+      }
+
+      if (nextDisplay !== this.lastPromptDisplay) {
+        this.promptElem.style.display = nextDisplay;
+        this.lastPromptDisplay = nextDisplay;
+      }
+      if (nextPromptText !== this.lastPromptText) {
+        this.promptElem.textContent = nextPromptText;
+        this.lastPromptText = nextPromptText;
       }
     }
   }
@@ -658,13 +709,15 @@ export class UIManager {
   }
 
   public updateRadar(playerX: number, playerZ: number, playerYaw: number) {
-    const radarDot = document.getElementById('radar-player-dot');
-    if (!radarDot) return;
+    if (!this.radarDotElem) {
+      this.radarDotElem = document.getElementById('radar-player-dot');
+      if (!this.radarDotElem) return;
+    }
     const mapRadius = 34;
     const nx = 40 + (playerX / 85) * mapRadius;
     const ny = 40 + (playerZ / 85) * mapRadius;
-    radarDot.style.left = `${nx}px`;
-    radarDot.style.top = `${ny}px`;
-    radarDot.style.transform = `translate(-50%, -50%) rotate(${-playerYaw}rad)`;
+    this.radarDotElem.style.left = `${nx}px`;
+    this.radarDotElem.style.top = `${ny}px`;
+    this.radarDotElem.style.transform = `translate(-50%, -50%) rotate(${-playerYaw}rad)`;
   }
 }

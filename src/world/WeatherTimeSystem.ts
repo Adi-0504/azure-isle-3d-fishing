@@ -17,6 +17,7 @@ export class WeatherTimeSystem {
   private rainCount = 1200;
   private clouds: THREE.Group[] = [];
   private starPoints!: THREE.Points;
+  private lastSkyUpdateMinute = -999;
 
   constructor(initialTime = 480, initialSeason: SeasonType = 'spring', initialWeather: WeatherType = 'sunny') {
     this.timeOfDayMinutes = initialTime;
@@ -25,11 +26,12 @@ export class WeatherTimeSystem {
     this.skyGroup = new THREE.Group();
     this.skyGroup.name = 'sky_atmosphere';
 
-    // Directional Sunlight with soft shadows
+    // Directional Sunlight with optimized crisp soft shadows
     this.sunLight = new THREE.DirectionalLight(0xfff3b0, 1.8);
     this.sunLight.castShadow = true;
-    this.sunLight.shadow.mapSize.width = 2048;
-    this.sunLight.shadow.mapSize.height = 2048;
+    this.sunLight.shadow.mapSize.width = 1024;
+    this.sunLight.shadow.mapSize.height = 1024;
+    this.sunLight.shadow.bias = -0.0005;
     this.sunLight.shadow.camera.near = 0.5;
     this.sunLight.shadow.camera.far = 180;
     const d = 55;
@@ -289,8 +291,10 @@ export class WeatherTimeSystem {
       }
     }
 
-    // Apply smooth vertex gradient to skyDome
-    if (this.skyDome) {
+    // Apply smooth vertex gradient to skyDome (throttled to minute increments for maximum FPS)
+    const shouldUpdateSky = Math.abs(this.timeOfDayMinutes - this.lastSkyUpdateMinute) >= 1.0;
+    if (this.skyDome && shouldUpdateSky) {
+      this.lastSkyUpdateMinute = this.timeOfDayMinutes;
       const pos = this.skyDome.geometry.attributes.position;
       const colorAttr = this.skyDome.geometry.attributes.color as THREE.BufferAttribute;
       const tempCol = new THREE.Color();

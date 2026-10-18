@@ -66,9 +66,9 @@ class GameEngine {
     const container = document.getElementById('canvas-container') || document.body;
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.1;
     container.appendChild(this.renderer.domElement);
@@ -77,6 +77,7 @@ class GameEngine {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     });
   }
 
@@ -91,6 +92,8 @@ class GameEngine {
 
     // 3. Buildings & Camp
     this.buildingManager = new BuildingManager();
+    const campY = this.terrain.getTerrainHeight(0, 5);
+    this.buildingManager.group.position.set(0, campY, 5);
     this.scene.add(this.buildingManager.group);
 
     // 4. Default Save & Weather

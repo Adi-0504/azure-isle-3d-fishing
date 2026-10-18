@@ -22,13 +22,14 @@ export class WaterSystem {
   public fishShadow: THREE.Mesh;
   public isShadowActive = false;
   private shadowTarget = new THREE.Vector3();
+  private waterUniforms: { [uniform: string]: THREE.IUniform<any> } | null = null;
 
   constructor() {
     this.group = new THREE.Group();
     this.group.name = 'water_system';
 
-    // Stylized semi-transparent ocean & river water plane
-    const waterGeo = new THREE.PlaneGeometry(260, 260, 56, 56);
+    // Stylized semi-transparent ocean & river water plane (GPU accelerated wave)
+    const waterGeo = new THREE.PlaneGeometry(260, 260, 32, 32);
     waterGeo.rotateX(-Math.PI / 2);
 
     const waterMat = new THREE.MeshToonMaterial({
@@ -37,6 +38,18 @@ export class WaterSystem {
       transparent: true,
       opacity: 0.82
     });
+
+    waterMat.onBeforeCompile = (shader) => {
+      shader.uniforms.uTime = { value: 0 };
+      this.waterUniforms = shader.uniforms;
+      shader.vertexShader = `uniform float uTime;\n` + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+        float wave = sin(position.x * 0.15 + uTime * 1.5) * 0.08 + cos(position.y * 0.15 + uTime * 1.2) * 0.08;
+        transformed.z += wave;`
+      );
+    };
 
     this.waterMesh = new THREE.Mesh(waterGeo, waterMat);
     this.waterMesh.position.y = 0.45;
@@ -121,15 +134,10 @@ export class WaterSystem {
   }
 
   public update(dt: number, timeSec: number) {
-    // Gentle water plane undulation
-    const pos = this.waterMesh.geometry.attributes.position as THREE.BufferAttribute;
-    for (let i = 0; i < pos.count; i++) {
-      const u = pos.getX(i);
-      const v = pos.getZ(i);
-      const wave = Math.sin(u * 0.15 + timeSec * 1.5) * 0.08 + Math.cos(v * 0.15 + timeSec * 1.2) * 0.08;
-      pos.setY(i, wave);
+    // GPU vertex shader wave time progression (zero CPU overhead)
+    if (this.waterUniforms) {
+      this.waterUniforms.uTime.value = timeSec;
     }
-    pos.needsUpdate = true;
 
     // Update ripples
     for (let i = this.ripples.length - 1; i >= 0; i--) {
