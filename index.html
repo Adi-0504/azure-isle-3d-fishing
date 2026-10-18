@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>蔚藍島嶼：3D釣魚探索遊戲 | Azure Isle 3D Fishing</title>
+  <meta name="description" content="完整3D第三人稱釣魚探索遊戲，融合寶可夢街機風格與動物森友會溫暖自然氛圍，具備六大島嶼區域、真實釣魚循環、生物圖鑑與跨裝置存檔。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+  <!-- 3D Three.js Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- UI & HUD Layer -->
+  <div id="ui-container">
+    <!-- Top HUD Bar -->
+    <div id="game-hud" class="interactive-ui">
+      <div class="hud-left">
+        <div class="hud-pill">
+          <span id="hud-time">08:00</span>
+          <span id="hud-env">春季 • 晴天 • 📍森林溪流</span>
+        </div>
+        <div class="hud-pill">
+          <span>體力</span>
+          <div class="stamina-meter">
+            <div id="hud-stamina-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div id="hud-gear" class="hud-pill">🎣 竹製手作釣竿</div>
+        <div id="hud-coins" class="coin-badge">$0</div>
+      </div>
+    </div>
+
+    <!-- Center Interaction Prompt -->
+    <div id="hud-prompt">靠近水面 [空白鍵 / 點擊] 拋竿釣魚</div>
+
+    <!-- PC Controls Helper -->
+    <div id="pc-controls-hint">
+      WASD 移動 | Shift 奔跑 | 空白鍵/E 釣魚/互動 | B 背包 | C 圖鑑 | Q 任務 | ESC 選單
+    </div>
+
+    <!-- iPad & Mobile Virtual Touch Controls -->
+    <div id="touch-controls">
+      <!-- Left Virtual Joystick -->
+      <div id="virtual-joystick-zone" class="interactive-ui">
+        <div id="joystick-knob"></div>
+      </div>
+
+      <!-- Right Touch Action Cluster -->
+      <div id="action-buttons-cluster" class="interactive-ui">
+        <div class="action-row">
+          <button id="btn-touch-menu" class="touch-btn touch-btn-menu" title="Menu">⚙️</button>
+          <button id="btn-touch-quest" class="touch-btn touch-btn-menu" title="Quests">📜</button>
+          <button id="btn-touch-catalog" class="touch-btn touch-btn-sub" title="Catalog">📖</button>
+          <button id="btn-touch-bag" class="touch-btn touch-btn-sub" title="Bag">🎒</button>
+        </div>
+        <div class="action-row">
+          <button id="btn-touch-sprint" class="touch-btn touch-btn-sub" title="Sprint">⚡</button>
+          <button id="btn-touch-interact" class="touch-btn touch-btn-sub" title="Interact">💬</button>
+          <button id="btn-touch-action" class="touch-btn touch-btn-main" title="Fish">🎣</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Main Menu -->
+    <div id="modal-main-menu" class="game-modal">
+      <div class="modal-content interactive-ui" style="max-width: 440px; text-align: center;">
+        <h1 style="font-size: 28px; color: var(--accent); margin-bottom: 8px;">蔚藍島嶼</h1>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">3D第三人稱釣魚自然探索遊戲</p>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <button id="btn-menu-continue" class="btn-action-wide" style="display: none;">繼續遊戲</button>
+          <button id="btn-menu-new" class="btn-action-wide">開始新遊戲</button>
+          <button id="btn-menu-lang" class="btn-buy" style="padding: 12px;">🌐 語言切換 / Language</button>
+          <button id="btn-menu-settings" class="btn-buy" style="padding: 12px; background: #3d5a80;">⚙️ 遊戲設定</button>
+          <button id="btn-menu-credits" class="btn-buy" style="padding: 12px; background: #4a5568;">📜 製作名單與致謝</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Intro Wizard -->
+    <div id="modal-intro-wizard" class="game-modal">
+      <div class="modal-content interactive-ui">
+        <!-- Step 1: Origin -->
+        <div id="intro-step-1">
+          <div class="modal-header">
+            <div class="modal-title">出發前的準備：你來自哪裡？</div>
+          </div>
+          <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 18px;">
+            請告訴我們冒險家的出發地，這將銘刻在你的島嶼開拓日誌上。
+          </p>
+          <div class="form-group">
+            <label class="form-label">選擇國家或地區：</label>
+            <select id="intro-region-select" class="form-select">
+              <option value="Taiwan">台灣 (Taiwan)</option>
+              <option value="Japan">日本 (Japan)</option>
+              <option value="United States">美國 (United States)</option>
+              <option value="Hong Kong">香港 (Hong Kong)</option>
+              <option value="Korea">韓國 (Korea)</option>
+              <option value="Europe">歐洲 (Europe)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">或手動輸入出發地：</label>
+            <input id="intro-region-input" class="form-input" placeholder="例如：淡水漁人碼頭、台南安平..." />
+          </div>
+          <button id="btn-intro-next-1" class="btn-action-wide" style="margin-top: 10px;">下一步：語言設定</button>
+        </div>
+
+        <!-- Step 2: Language -->
+        <div id="intro-step-2" style="display: none;">
+          <div class="modal-header">
+            <div class="modal-title">選擇遊戲語言 / Language</div>
+          </div>
+          <div class="form-group">
+            <select id="intro-lang-select" class="form-select">
+              <option value="zh-TW">繁體中文</option>
+              <option value="zh-CN">简体中文</option>
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+              <option value="ko">한국어</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+              <option value="de">Deutsch</option>
+            </select>
+          </div>
+          <button id="btn-intro-next-2" class="btn-action-wide" style="margin-top: 10px;">下一步：客製化角色</button>
+        </div>
+
+        <!-- Step 3: Character Customization -->
+        <div id="intro-step-3" style="display: none;">
+          <div class="modal-header">
+            <div class="modal-title">創造你的釣魚冒險家</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">冒險家姓名：</label>
+            <input id="char-name-input" class="form-input" value="Leo" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">髮型風格：</label>
+            <div style="display: flex; gap: 16px; font-size: 14px;">
+              <label><input type="radio" name="hairStyle" value="cap" checked /> 專業釣魚帽</label>
+              <label><input type="radio" name="hairStyle" value="spiky" /> 冒險家刺蝟頭</label>
+              <label><input type="radio" name="hairStyle" value="flowing" /> 自然微捲長髮</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label">髮色：</label>
+              <input id="hair-color-picker" type="color" value="#4A3728" class="form-input" style="height: 42px;" />
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label">膚色：</label>
+              <input id="skin-tone-picker" type="color" value="#FAD6B8" class="form-input" style="height: 42px;" />
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label">背心顏色：</label>
+              <input id="outfit-color-picker" type="color" value="#1E6091" class="form-input" style="height: 42px;" />
+            </div>
+          </div>
+          <button id="btn-intro-start" class="btn-action-wide" style="margin-top: 12px;">啟程出航！進入蔚藍島嶼</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Catch Success Popup -->
+    <div id="modal-catch" class="game-modal">
+      <div class="modal-content catch-dialog interactive-ui">
+        <div class="catch-title">🎣 成功捕獲！</div>
+        <div id="catch-3d-canvas"></div>
+        <h2 id="catch-name" style="font-size: 22px; color: #fff;">三點鮭</h2>
+        <div class="catch-details">
+          <span id="catch-stars" style="color: var(--accent);">★★☆☆☆</span>
+          <span id="catch-size">45.2 cm</span>
+          <span id="catch-price" style="color: var(--accent);">$65</span>
+        </div>
+        <p id="catch-desc" style="font-size: 13px; color: var(--text-muted); margin: 8px 0 16px; line-height: 1.4;"></p>
+        <div class="catch-buttons">
+          <button id="btn-catch-keep" class="btn-catch btn-keep">放入背包</button>
+          <button id="btn-catch-sell" class="btn-catch btn-sell-direct">現場售出</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Backpack -->
+    <div id="modal-backpack" class="game-modal">
+      <div class="modal-content interactive-ui">
+        <div class="modal-header">
+          <div class="modal-title">🎒 隨身背包</div>
+          <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
+        </div>
+        <div id="bag-capacity-text" style="font-size: 14px; color: var(--text-muted);">容量: 0 / 12</div>
+        <div id="bag-grid" class="bag-grid-container"></div>
+      </div>
+    </div>
+
+    <!-- MODAL: Creature Catalog (Pokédex) -->
+    <div id="modal-catalog" class="game-modal">
+      <div class="modal-content interactive-ui" style="max-width: 750px;">
+        <div class="modal-header">
+          <div class="modal-title">📖 自然生物觀察圖鑑</div>
+          <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted);">收錄島上溪流、高山湖、懸崖與海灘全部生物物種。</p>
+        <div id="catalog-list" class="catalog-grid"></div>
+      </div>
+    </div>
+
+    <!-- MODAL: Trading Terminal Shop -->
+    <div id="modal-shop" class="game-modal">
+      <div class="modal-content interactive-ui" style="max-width: 750px;">
+        <div class="modal-header">
+          <div class="modal-title">🏪 自動交易終端機</div>
+          <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
+        </div>
+        <div id="shop-coins-text" style="font-size: 16px; font-weight: 700; color: var(--accent);">金幣: $0</div>
+        <div id="shop-items-grid" class="shop-grid"></div>
+      </div>
+    </div>
+
+    <!-- MODAL: Quest Board -->
+    <div id="modal-quests" class="game-modal">
+      <div class="modal-content interactive-ui">
+        <div class="modal-header">
+          <div class="modal-title">📜 島嶼生態任務公告</div>
+          <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
+        </div>
+        <div id="quests-list" class="quests-list-container"></div>
+      </div>
+    </div>
+
+    <!-- MODAL: Settings -->
+    <div id="modal-settings" class="game-modal">
+      <div class="modal-content interactive-ui" style="max-width: 480px;">
+        <div class="modal-header">
+          <div class="modal-title">⚙️ 遊戲設定</div>
+          <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">背景音樂音量 (BGM)：</label>
+          <input id="settings-bgm-slider" type="range" min="0" max="100" value="50" style="width: 100%;" />
+          <label style="font-size: 13px; margin-top: 4px; display: inline-block;">
+            <input id="settings-bgm-mute" type="checkbox" /> 靜音背景音樂
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label">環境音效音量 (SFX)：</label>
+          <input id="settings-sfx-slider" type="range" min="0" max="100" value="70" style="width: 100%;" />
+          <label style="font-size: 13px; margin-top: 4px; display: inline-block;">
+            <input id="settings-sfx-mute" type="checkbox" /> 靜音環境音效
+          </label>
+        </div>
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+          <button id="btn-save-progress" class="btn-action-wide">💾 立即手動儲存進度</button>
+          <button id="btn-export-save" class="btn-buy" style="padding: 10px; background: #2a9d8f;">📤 匯出存檔 (跨裝置轉移)</button>
+          <label class="btn-buy" style="padding: 10px; background: #3d5a80; text-align: center; cursor: pointer;">
+            📥 匯入存檔 (JSON)
+            <input id="input-import-save" type="file" accept=".json" style="display: none;" />
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Credits -->
+    <div id="modal-credits" class="game-modal">
+      <div class="modal-content interactive-ui" style="max-width: 500px;">
+        <div class="modal-header">
+          <div class="modal-title">📜 製作名單與致謝</div>
+          <button class="btn-close" onclick="this.closest('.game-modal').style.display='none'">✕</button>
+        </div>
+        <div style="font-size: 13px; line-height: 1.6; color: var(--text-muted);">
+          <p><strong>專案名稱：</strong>蔚藍島嶼：3D釣魚探索遊戲 (Azure Isle 3D)</p>
+          <p><strong>3D引擎：</strong>Three.js</p>
+          <p><strong>建置工具：</strong>TypeScript + Vite</p>
+          <p><strong>聲音系統：</strong>Web Audio API 程序化實時合成音訊管線</p>
+          <p><strong>模型與美術風格：</strong>融合動漫少年與《動物森友會》圓潤低多邊形自研幾何生成管線</p>
+          <p><strong>開源與美術規範參考：</strong>Kenney.nl (CC0), Quaternius (CC0)</p>
+          <p><strong>合法合規：</strong>全數原創/CC0開源程式碼生成，無第三方侵權素材，支援 itch.io 發布。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
