@@ -237,15 +237,15 @@ export class WeatherTimeSystem {
     const cHorizon = new THREE.Color();
 
     if (this.isNight()) {
-      // Night lighting & starry indigo sky
-      this.sunLight.intensity = 0.2;
-      this.sunLight.color.set(0x4a6fa5);
-      this.hemiLight.color.set(0x162a45);
-      this.hemiLight.groundColor.set(0x050c18);
-      this.hemiLight.intensity = 0.45;
+      // Night lighting & starry indigo sky (magical moonlit night with clear visibility)
+      this.sunLight.intensity = 0.55;
+      this.sunLight.color.set(0x7da4d4);
+      this.hemiLight.color.set(0x3a506b);
+      this.hemiLight.groundColor.set(0x1c2541);
+      this.hemiLight.intensity = 0.85;
 
-      cZenith.set(0x03071e);
-      cHorizon.set(0x0b132b);
+      cZenith.set(0x0a1128);
+      cHorizon.set(0x1c2541);
       if (this.starPoints) {
         (this.starPoints.material as THREE.PointsMaterial).opacity = 0.85;
       }

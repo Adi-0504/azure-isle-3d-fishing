@@ -126,7 +126,15 @@ export class PlayerModel {
     const canteenMat = new THREE.MeshStandardMaterial({ color: 0x457b9d, metalness: 0.6, roughness: 0.3 });
     const canteen = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.18, 8), canteenMat);
     canteen.position.set(-0.33, -0.32, 0.06);
-    this.torsoNode.add(belt, pouch, canteen);
+
+    // Explorer's night lantern on hip
+    const lanternGeo = new THREE.CylinderGeometry(0.06, 0.07, 0.14, 6);
+    const lanternMat = new THREE.MeshBasicMaterial({ color: 0xffd166 });
+    const lantern = new THREE.Mesh(lanternGeo, lanternMat);
+    lantern.position.set(0.28, -0.36, -0.18);
+    const lanternLight = new THREE.PointLight(0xffbe0b, 1.4, 9);
+    lanternLight.position.set(0.28, -0.36, -0.18);
+    this.torsoNode.add(belt, pouch, canteen, lantern, lanternLight);
 
     // --- HEAD ---
     this.headNode = new THREE.Group();
