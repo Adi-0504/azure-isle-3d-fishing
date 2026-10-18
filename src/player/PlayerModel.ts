@@ -55,7 +55,7 @@ export class PlayerModel {
     torsoMesh.castShadow = true;
     this.torsoNode.add(torsoMesh);
 
-    // Fishing Vest Pockets & Collar
+    // Fishing Vest Pockets, Zipper & Collar
     const pocketGeo = new THREE.BoxGeometry(0.16, 0.16, 0.08);
     const pocketMat = new THREE.MeshToonMaterial({ color: 0xe0a96d });
     const pocketL = new THREE.Mesh(pocketGeo, pocketMat);
@@ -64,14 +64,41 @@ export class PlayerModel {
     pocketR.position.set(0.18, -0.05, 0.32);
     this.torsoNode.add(pocketL, pocketR);
 
-    // Utility belt with tackle box pouch
+    // Brass Zipper line
+    const zipper = new THREE.Mesh(
+      new THREE.BoxGeometry(0.04, 0.65, 0.04),
+      new THREE.MeshStandardMaterial({ color: 0xffd166, metalness: 0.8, roughness: 0.3 })
+    );
+    zipper.position.set(0, 0, 0.33);
+    this.torsoNode.add(zipper);
+
+    // Adventure Backpack on Back
+    const packMat = new THREE.MeshToonMaterial({ color: 0x606c38 });
+    const backpack = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.52, 0.24), packMat);
+    backpack.position.set(0, 0.05, -0.28);
+    backpack.castShadow = true;
+    this.torsoNode.add(backpack);
+
+    // Rolled Sleeping Mat on top of pack
+    const matMat = new THREE.MeshToonMaterial({ color: 0xd4a373 });
+    const sleepMat = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.56, 8), matMat);
+    sleepMat.rotation.z = Math.PI / 2;
+    sleepMat.position.set(0, 0.36, -0.28);
+    this.torsoNode.add(sleepMat);
+
+    // Utility belt with tackle box pouch & canteen
     const beltGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.1, 10);
     const belt = new THREE.Mesh(beltGeo, beltMat);
     belt.position.y = -0.32;
     const pouchGeo = new THREE.BoxGeometry(0.18, 0.16, 0.14);
     const pouch = new THREE.Mesh(pouchGeo, beltMat);
     pouch.position.set(0.32, -0.32, 0.08);
-    this.torsoNode.add(belt, pouch);
+
+    // Canteen on left hip
+    const canteenMat = new THREE.MeshStandardMaterial({ color: 0x457b9d, metalness: 0.6, roughness: 0.3 });
+    const canteen = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.18, 8), canteenMat);
+    canteen.position.set(-0.33, -0.32, 0.06);
+    this.torsoNode.add(belt, pouch, canteen);
 
     // --- HEAD ---
     this.headNode = new THREE.Group();
@@ -85,7 +112,8 @@ export class PlayerModel {
     headMesh.castShadow = true;
     this.headNode.add(headMesh);
 
-    // Big Anime Eyes
+    // Big Anime Eyes with White Specular Glints
+    const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     [-0.15, 0.15].forEach(x => {
       const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 8), eyeWhiteMat);
       eyeL.scale.set(0.8, 1.1, 0.4);
@@ -93,7 +121,12 @@ export class PlayerModel {
       const pupL = new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 8), pupilMat);
       pupL.scale.set(0.8, 1.1, 0.4);
       pupL.position.set(x, 0.02, 0.41);
-      this.headNode.add(eyeL, pupL);
+
+      // Sparkle Glint
+      const glint = new THREE.Mesh(new THREE.SphereGeometry(0.025, 6, 6), glintMat);
+      glint.position.set(x - 0.02, 0.05, 0.43);
+
+      this.headNode.add(eyeL, pupL, glint);
     });
 
     // Cute blush cheeks
@@ -174,6 +207,15 @@ export class PlayerModel {
     blankMesh.position.set(0, 1.1, 0.1);
     this.rodNode.add(blankMesh);
 
+    // Line Guide Rings along blank
+    const ringMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.9, roughness: 0.2 });
+    [0.6, 1.1, 1.6, 2.1].forEach(y => {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.04, 0.012, 6, 8), ringMat);
+      ring.position.set(0, y, 0.15);
+      ring.rotation.y = Math.PI / 2;
+      this.rodNode.add(ring);
+    });
+
     // Reel
     const reelGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.1, 8);
     const reelMat = new THREE.MeshStandardMaterial({ color: 0xc0c0c0, metalness: 0.8, roughness: 0.2 });
@@ -191,12 +233,25 @@ export class PlayerModel {
     this.lineMesh = new THREE.Line(lineGeo, lineMat);
     this.rodNode.add(this.lineMesh);
 
-    // Bobber (floating buoy)
-    const bobberGeo = new THREE.SphereGeometry(0.12, 8, 8);
-    const bobberMat = new THREE.MeshToonMaterial({ color: 0xff3333 });
-    this.bobberMesh = new THREE.Mesh(bobberGeo, bobberMat);
-    this.bobberMesh.position.set(0, 0, 4.0);
-    this.bobberMesh.visible = false;
+    // Two-Tone Classic Egg Bobber (Red top, White bottom, Yellow antenna)
+    const bobberGroup = new THREE.Group();
+    const bobberTop = new THREE.Mesh(
+      new THREE.SphereGeometry(0.12, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshToonMaterial({ color: 0xff3333 })
+    );
+    const bobberBot = new THREE.Mesh(
+      new THREE.SphereGeometry(0.12, 8, 6, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+      new THREE.MeshToonMaterial({ color: 0xffffff })
+    );
+    const antenna = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.015, 0.015, 0.14, 6),
+      new THREE.MeshBasicMaterial({ color: 0xffd166 })
+    );
+    antenna.position.y = 0.16;
+    bobberGroup.add(bobberTop, bobberBot, antenna);
+    bobberGroup.position.set(0, 0, 4.0);
+    bobberGroup.visible = false;
+    this.bobberMesh = bobberGroup as unknown as THREE.Mesh;
     this.group.add(this.bobberMesh);
   }
 

@@ -267,6 +267,21 @@ export class UIManager {
     priceElem.textContent = `$${result.price}`;
     descElem.textContent = result.creature.descriptions[lang] || result.creature.descriptions['en'];
 
+    // Perfect Catch Banner
+    let perfectBanner = document.getElementById('catch-perfect-badge');
+    if (!perfectBanner) {
+      perfectBanner = document.createElement('div');
+      perfectBanner.id = 'catch-perfect-badge';
+      perfectBanner.className = 'perfect-catch-banner';
+      nameElem.parentNode?.insertBefore(perfectBanner, nameElem);
+    }
+    if (result.isPerfectTiming) {
+      perfectBanner.textContent = '⭐ 完美起竿！(PERFECT CATCH) +15% 尺寸 & +25% 價值加成！';
+      perfectBanner.style.display = 'block';
+    } else {
+      perfectBanner.style.display = 'none';
+    }
+
     // Mount 3D Preview
     canvasContainer.innerHTML = '';
     canvasContainer.appendChild(this.previewRenderer.domElement);
@@ -621,5 +636,34 @@ export class UIManager {
         elem.textContent = t(key);
       }
     });
+  }
+
+  public showToast(message: string, icon = '✨') {
+    let toast = document.getElementById('floating-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'floating-toast';
+      toast.className = 'floating-toast-pill interactive-ui';
+      this.rootElement.appendChild(toast);
+    }
+    toast.innerHTML = `<span class="toast-icon">${icon}</span> <span>${message}</span>`;
+    toast.classList.remove('toast-show');
+    void toast.offsetWidth;
+    toast.classList.add('toast-show');
+
+    setTimeout(() => {
+      toast?.classList.remove('toast-show');
+    }, 2600);
+  }
+
+  public updateRadar(playerX: number, playerZ: number, playerYaw: number) {
+    const radarDot = document.getElementById('radar-player-dot');
+    if (!radarDot) return;
+    const mapRadius = 34;
+    const nx = 40 + (playerX / 85) * mapRadius;
+    const ny = 40 + (playerZ / 85) * mapRadius;
+    radarDot.style.left = `${nx}px`;
+    radarDot.style.top = `${ny}px`;
+    radarDot.style.transform = `translate(-50%, -50%) rotate(${-playerYaw}rad)`;
   }
 }

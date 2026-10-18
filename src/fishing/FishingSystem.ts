@@ -14,6 +14,7 @@ export interface CatchResult {
   sizeCm: number;
   price: number;
   isNewDiscovery: boolean;
+  isPerfectTiming?: boolean;
 }
 
 export class FishingSystem {
@@ -106,13 +107,16 @@ export class FishingSystem {
 
     if (this.state === 'bite') {
       // Hit on time!
+      // Check timing accuracy: sweet spot between 0.7s and 1.9s remaining
+      const isPerfect = (this.biteWindowTimer >= 0.7 && this.biteWindowTimer <= 1.9);
+
       this.state = 'reeling';
       playerModel.animState = 'reel';
       soundSynth.playReelClick();
-      waterSystem.spawnRipple(this.bobberPos, 2.5);
+      waterSystem.spawnRipple(this.bobberPos, isPerfect ? 3.5 : 2.5);
 
       setTimeout(() => {
-        this.resolveCatch(playerModel, waterSystem, terrain, weatherTime, equippedRodId, equippedBaitId);
+        this.resolveCatch(playerModel, waterSystem, terrain, weatherTime, equippedRodId, equippedBaitId, isPerfect);
       }, 700);
     }
   }
@@ -123,7 +127,8 @@ export class FishingSystem {
     terrain: IslandTerrain,
     weatherTime: WeatherTimeSystem,
     equippedRodId: string,
-    equippedBaitId: string | null
+    equippedBaitId: string | null,
+    isPerfectTiming: boolean = false
   ) {
     this.state = 'caught';
     this.alertBillboard.visible = false;
@@ -154,16 +159,25 @@ export class FishingSystem {
       if (rareList.length > 0) chosen = rareList[Math.floor(Math.random() * rareList.length)];
     }
 
-    // Roll size
+    // Roll size (Perfect timing gives +15% length bonus!)
     const sizeRange = chosen.maxSize - chosen.minSize;
-    const sizeCm = Math.round((chosen.minSize + Math.random() * sizeRange) * 10) / 10;
-    const price = Math.round(chosen.basePrice * (sizeCm / chosen.minSize));
+    let sizeCm = Math.round((chosen.minSize + Math.random() * sizeRange) * 10) / 10;
+    if (isPerfectTiming) {
+      sizeCm = Math.round(Math.min(chosen.maxSize * 1.15, sizeCm * 1.15) * 10) / 10;
+    }
+
+    // Value calculation (+25% bonus for perfect catch)
+    let price = Math.round(chosen.basePrice * (sizeCm / chosen.minSize));
+    if (isPerfectTiming) {
+      price = Math.round(price * 1.25);
+    }
 
     const result: CatchResult = {
       creature: chosen,
       sizeCm,
       price,
-      isNewDiscovery: false
+      isNewDiscovery: false,
+      isPerfectTiming
     };
 
     if (this.onCatchSuccessCallback) {

@@ -31,9 +31,21 @@ export class PlayerController {
   public stamina = 100;
   public maxStamina = 100;
 
+  // Jump physics
+  public isGrounded = true;
+  public velocityY = 0;
+
   // Speed
   private walkSpeed = 5.2;
   private sprintSpeed = 9.2;
+
+  public jump() {
+    if (this.isGrounded && this.stamina >= 5) {
+      this.velocityY = 6.8;
+      this.isGrounded = false;
+      this.stamina -= 5;
+    }
+  }
 
   // Input
   public input: InputState = {
@@ -172,9 +184,20 @@ export class PlayerController {
       }
     }
 
-    // Terrain height alignment
+    // Jump & gravity physics
     const groundY = this.terrain.getTerrainHeight(this.position.x, this.position.z);
-    this.position.y = groundY;
+    if (!this.isGrounded) {
+      this.velocityY -= 18.0 * dt;
+      this.position.y += this.velocityY * dt;
+      if (this.position.y <= groundY) {
+        this.position.y = groundY;
+        this.velocityY = 0;
+        this.isGrounded = true;
+      }
+    } else {
+      this.position.y = groundY;
+    }
+
     this.playerModel.group.position.copy(this.position);
 
     // Update Player Model Animation

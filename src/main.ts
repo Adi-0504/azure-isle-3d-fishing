@@ -220,6 +220,7 @@ class GameEngine {
         this.currentSave.coins += c.price * slot.quantity;
         this.currentSave.inventory.splice(slotIdx, 1);
         soundSynth.playCoinsChime();
+        this.uiManager.showToast(`售出物品！獲得金幣 +$${c.price * slot.quantity}`, '💰');
         this.autoSave();
       }
     };
@@ -230,6 +231,7 @@ class GameEngine {
       if (!item || this.currentSave.coins < item.price) return;
 
       this.currentSave.coins -= item.price;
+      this.uiManager.showToast(`購買成功：${item.names[this.currentSave.language]}！`, item.icon);
 
       if (item.type === 'rod') {
         this.currentSave.equippedRodId = item.id;
@@ -278,6 +280,7 @@ class GameEngine {
           this.currentSave.inventory.push({ itemId: q.rewardItem, quantity: 3 });
         }
         this.currentSave.completedQuests.push(questId);
+        this.uiManager.showToast(`任務達成！獲得獎勵 +$${q.rewardCoins} 金幣`, '📜');
         this.autoSave();
       }
     };
@@ -382,6 +385,13 @@ class GameEngine {
       });
     }
 
+    const btnJump = document.getElementById('btn-touch-jump');
+    if (btnJump) {
+      btnJump.addEventListener('pointerdown', () => {
+        this.playerController.jump();
+      });
+    }
+
     const btnBag = document.getElementById('btn-touch-bag');
     if (btnBag) {
       btnBag.addEventListener('pointerdown', () => {
@@ -424,6 +434,9 @@ class GameEngine {
     if (this.fishingSystem.state === 'idle') {
       if (this.terrain.isNearWater(this.playerController.position.x, this.playerController.position.z)) {
         this.fishingSystem.startCast(this.playerModel, this.playerController.yaw, this.waterSystem);
+      } else {
+        // Jump when away from water!
+        this.playerController.jump();
       }
     } else if (this.fishingSystem.state === 'bite' || this.fishingSystem.state === 'waiting') {
       this.fishingSystem.reelIn(
@@ -590,6 +603,12 @@ class GameEngine {
           baitItem ? baitItem.names[lang] : null,
           isNearWater,
           canInteract
+        );
+
+        this.uiManager.updateRadar(
+          this.playerController.position.x,
+          this.playerController.position.z,
+          this.playerController.yaw
         );
 
         // Auto-save every 30 seconds

@@ -185,6 +185,18 @@ export class IslandTerrain {
     // Footbridges over stream
     this.spawnWoodenBridge(-15, this.getTerrainHeight(-15, 12), 12);
     this.spawnWoodenBridge(-13, this.getTerrainHeight(-13, -8), -8);
+
+    // Fishing Piers (Southern Beach & Highland Lake)
+    this.spawnFishingPier(2, 0.55, 44, 14, 'south');
+    this.spawnFishingPier(25, 1.35, 7, 9, 'north');
+
+    // Ancient Stone Beacon / Gazebo Landmark on Northern Cliffs
+    this.spawnNorthernBeacon(0, this.getTerrainHeight(0, -58), -58);
+
+    // Colorful Flower Patches, Mushrooms & Signposts
+    this.spawnFlowerPatches();
+    this.spawnForestMushrooms();
+    this.spawnSignposts();
   }
 
   private spawnStylizedTree(x: number, y: number, z: number, isPine: boolean) {
@@ -276,6 +288,171 @@ export class IslandTerrain {
     });
 
     this.group.add(bridge);
+  }
+
+  private spawnFishingPier(startX: number, startY: number, startZ: number, length: number, dir: 'south' | 'north') {
+    const pier = new THREE.Group();
+    pier.position.set(startX, startY, startZ);
+
+    const woodMat = new THREE.MeshToonMaterial({ color: 0x9c6644 });
+    const postMat = new THREE.MeshToonMaterial({ color: 0x7f4f24 });
+    const ropeMat = new THREE.MeshStandardMaterial({ color: 0xddb892, roughness: 0.8 });
+
+    const step = 0.5;
+    const numPlanks = Math.floor(length / step);
+    const zDir = dir === 'south' ? 1 : -1;
+
+    for (let i = 0; i < numPlanks; i++) {
+      const pz = i * step * zDir;
+      const plank = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.12, 0.44), woodMat);
+      plank.position.set(0, 0, pz);
+      plank.castShadow = true;
+      pier.add(plank);
+
+      // Support pillars every 4 planks
+      if (i % 4 === 0) {
+        [-1.0, 1.0].forEach(px => {
+          const stilt = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.2, 6), postMat);
+          stilt.position.set(px, -1.0, pz);
+          stilt.castShadow = true;
+          pier.add(stilt);
+        });
+      }
+    }
+
+    // Mooring bollards at pier head with rope coil
+    const endZ = (numPlanks - 1) * step * zDir;
+    [-1.0, 1.0].forEach(px => {
+      const bollard = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.6, 8), postMat);
+      bollard.position.set(px, 0.3, endZ);
+      const rope = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.03, 6, 8), ropeMat);
+      rope.position.set(px, 0.25, endZ);
+      rope.rotation.x = Math.PI / 2;
+      pier.add(bollard, rope);
+    });
+
+    this.group.add(pier);
+  }
+
+  private spawnNorthernBeacon(x: number, y: number, z: number) {
+    const beaconGroup = new THREE.Group();
+    beaconGroup.position.set(x, y, z);
+
+    const stoneMat = new THREE.MeshToonMaterial({ color: 0x6c757d });
+    const roofMat = new THREE.MeshToonMaterial({ color: 0x1d3557 });
+    const glassMat = new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0.85 });
+
+    // Raised Circular Stone Base
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.5, 0.8, 12), stoneMat);
+    base.position.y = 0.4;
+    base.castShadow = true;
+    beaconGroup.add(base);
+
+    // 4 Classical Pillars
+    for (let i = 0; i < 4; i++) {
+      const ang = (i / 4) * Math.PI * 2;
+      const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 3.2, 8), stoneMat);
+      pillar.position.set(Math.cos(ang) * 2.2, 2.0, Math.sin(ang) * 2.2);
+      pillar.castShadow = true;
+      beaconGroup.add(pillar);
+    }
+
+    // Glowing Lantern Centerpiece
+    const lantern = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1.2, 8), glassMat);
+    lantern.position.y = 2.2;
+    const light = new THREE.PointLight(0xffb703, 2.5, 25);
+    light.position.y = 2.2;
+    beaconGroup.add(lantern, light);
+
+    // Domed Peak Roof
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(3.5, 1.8, 12), roofMat);
+    roof.position.y = 4.4;
+    roof.castShadow = true;
+    beaconGroup.add(roof);
+
+    this.group.add(beaconGroup);
+  }
+
+  private spawnFlowerPatches() {
+    const colors = [0xff758f, 0xffd166, 0x70d6ff, 0xffffff, 0xb5e2fa];
+    for (let p = 0; p < 35; p++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 10 + Math.random() * 50;
+      const px = Math.cos(angle) * r;
+      const pz = Math.sin(angle) * r;
+      const py = this.getTerrainHeight(px, pz);
+      if (py < 0.6 || py > 7.0) continue;
+
+      const patchColor = colors[p % colors.length];
+      const flowerMat = new THREE.MeshToonMaterial({ color: patchColor });
+      const stemMat = new THREE.MeshToonMaterial({ color: 0x52b788 });
+
+      // Cluster of 4-6 flowers per patch
+      for (let f = 0; f < 5; f++) {
+        const fx = px + (Math.random() - 0.5) * 1.8;
+        const fz = pz + (Math.random() - 0.5) * 1.8;
+        const fy = this.getTerrainHeight(fx, fz);
+
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.35, 4), stemMat);
+        stem.position.set(fx, fy + 0.17, fz);
+
+        const bloom = new THREE.Mesh(new THREE.DodecahedronGeometry(0.12, 0), flowerMat);
+        bloom.position.set(fx, fy + 0.35, fz);
+
+        this.group.add(stem, bloom);
+      }
+    }
+  }
+
+  private spawnForestMushrooms() {
+    const capMat = new THREE.MeshToonMaterial({ color: 0xd90429 });
+    const stemMat = new THREE.MeshToonMaterial({ color: 0xfdf0d5 });
+    const spotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+    // Spawn mushrooms in Secret Grove (x < -25)
+    for (let i = 0; i < 20; i++) {
+      const mx = -32 - Math.random() * 20;
+      const mz = (Math.random() - 0.5) * 25;
+      const my = this.getTerrainHeight(mx, mz);
+      if (my < 0.6) continue;
+
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.4, 6), stemMat);
+      stem.position.set(mx, my + 0.2, mz);
+
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2), capMat);
+      cap.position.set(mx, my + 0.4, mz);
+
+      const spot = new THREE.Mesh(new THREE.SphereGeometry(0.04, 4, 4), spotMat);
+      spot.position.set(mx + 0.08, my + 0.48, mz + 0.08);
+
+      this.group.add(stem, cap, spot);
+    }
+  }
+
+  private spawnSignposts() {
+    const woodMat = new THREE.MeshToonMaterial({ color: 0x8b5a2b });
+    const signMat = new THREE.MeshToonMaterial({ color: 0xd4a373 });
+
+    // Signpost at Crossroads (0, 0, 18)
+    const signGroup = new THREE.Group();
+    const sy = this.getTerrainHeight(0, 18);
+    signGroup.position.set(0, sy, 18);
+
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 1.6, 6), woodMat);
+    post.position.y = 0.8;
+
+    // Arrow to Southern Beach
+    const arrowBeach = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 0.06), signMat);
+    arrowBeach.position.set(0.3, 1.3, 0.05);
+    arrowBeach.rotation.z = -0.05;
+
+    // Arrow to Central Lake
+    const arrowLake = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 0.06), signMat);
+    arrowLake.position.set(-0.3, 1.0, -0.05);
+    arrowLake.rotation.z = 0.05;
+
+    signGroup.add(post, arrowBeach, arrowLake);
+    this.group.add(signGroup);
   }
 
   private buildCampSite() {

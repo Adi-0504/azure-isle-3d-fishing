@@ -112,6 +112,67 @@ export class CreatureModelGenerator {
     pupilR.position.set(1.08, 0.25, -0.42);
     root.add(eyeR, pupilR);
 
+    // Special morphology variations
+    if (data.id === 'black_striped_eel') {
+      // Sinuous ribbon-like undulating eel body
+      root.remove(body);
+      const eelCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(1.2, 0, 0),
+        new THREE.Vector3(0.6, 0.1, 0.2),
+        new THREE.Vector3(0, -0.1, -0.15),
+        new THREE.Vector3(-0.7, 0.1, 0.2),
+        new THREE.Vector3(-1.4, 0, -0.1)
+      ]);
+      const eelGeo = new THREE.TubeGeometry(eelCurve, 20, 0.22, 8, false);
+      const eelMesh = new THREE.Mesh(eelGeo, bodyMat);
+      root.add(eelMesh);
+
+      // Dark stripes along body
+      for (let s = -3; s <= 3; s++) {
+        const stripe = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.04, 6, 8), accentMat);
+        stripe.position.set(s * 0.35, 0, 0);
+        stripe.rotation.y = Math.PI / 2;
+        root.add(stripe);
+      }
+      return;
+    }
+
+    if (data.id === 'azure_tuna') {
+      // Hydrodynamic Pelagic Torpedo with yellow finlets
+      body.scale.set(2.4, 1.1, 0.65);
+      const yellowFinMat = new THREE.MeshToonMaterial({ color: 0xffd166 });
+
+      // Golden Finlets along top and bottom of tail
+      for (let f = 0; f < 5; f++) {
+        const finletTop = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.25, 3), yellowFinMat);
+        finletTop.position.set(-0.6 - f * 0.16, 0.55 - f * 0.06, 0);
+        finletTop.rotation.z = -Math.PI / 3;
+
+        const finletBot = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.25, 3), yellowFinMat);
+        finletBot.position.set(-0.6 - f * 0.16, -0.55 + f * 0.06, 0);
+        finletBot.rotation.z = Math.PI / 3;
+
+        root.add(finletTop, finletBot);
+      }
+    } else if (data.id === 'sunset_sea_bream') {
+      // Deep disk body
+      body.scale.set(1.4, 1.35, 0.45);
+      dorsal.scale.set(0.1, 1.4, 1.6);
+      dorsal.position.set(-0.1, 1.05, 0);
+    } else if (data.id === 'golden_koi') {
+      // Barbels (whiskers) near mouth
+      const barbelGeo = new THREE.CylinderGeometry(0.02, 0.01, 0.4, 4);
+      const barbelL = new THREE.Mesh(barbelGeo, accentMat);
+      barbelL.position.set(1.15, -0.15, 0.18);
+      barbelL.rotation.set(0.3, 0, -0.8);
+
+      const barbelR = new THREE.Mesh(barbelGeo, accentMat);
+      barbelR.position.set(1.15, -0.15, -0.18);
+      barbelR.rotation.set(-0.3, 0, -0.8);
+
+      root.add(barbelL, barbelR);
+    }
+
     // Special species accents: e.g. three dots on Three-dot Salmon
     if (data.id === 'three_dot_salmon') {
       const dotGeo = new THREE.SphereGeometry(0.08, 6, 6);
